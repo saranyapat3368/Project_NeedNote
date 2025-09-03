@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ลงทะเบียน - NEED NOTE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1><i>NEED NOTE</i></h1>
+        <div class="icon">&#128100;</div>
+    </div>
+
+    <div class="form-container">
+        <h2>ลงทะเบียน</h2>
+        <form action="/submit" method="POST">
+            <label>ชื่อ-สกุล</label><br>
+            <input type="text" name="name" required><br>
+
+            <label>รหัสนักศึกษา</label><br>
+            <input type="text" name="student_id" required><br>
+
+            <label>รหัสผ่าน</label><br>
+            <input type="password" name="password" required><br>
+
+            <button type="submit">ลงทะเบียน</button>
+        </form>
+    </div>
+
+    <div class="help-link">ดูวิดีโอแนะนำ</div>
+</body>
+</html>
