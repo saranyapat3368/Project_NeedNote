@@ -13,6 +13,10 @@ def submit():
     password = request.form['password']
     return f"ลงทะเบียนสำเร็จ: {name}, {student_id}"
 
+@app.route('/main_note')
+def main_note():
+    return render_template('main_note.html')
+
 @app.route('/note')
 def note():
     return render_template('note.html')
