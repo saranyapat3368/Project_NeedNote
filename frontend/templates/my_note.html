@@ -10,6 +10,8 @@
         <div class="nav-left">
             <button class="menu-btn">&#9664;</button>
             <div class="menu">
+                <!-- ปุ่ม คลังโน้ต ลิงก์กลับหน้า main_note -->
+                <a href="{{ url_for('main_note') }}"><button class="tab">โน้ตรวม</button></a>
                 <a href="{{ url_for('note') }}"><button class="tab">คลังโน้ต</button></a>
                 <button class="tab active">โน้ตของฉัน</button>
             </div>
