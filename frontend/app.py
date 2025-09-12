@@ -13,5 +13,9 @@ def submit():
     password = request.form['password']
     return f"ลงทะเบียนสำเร็จ: {name}, {student_id}"
 
-if __name__ == '__main':
+@app.route('/note')
+def note():
+    return render_template('note.html')
+
+if __name__ == '__main__':
     app.run(debug=True)
