@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>โน้ต</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-left">
+            <button class="menu-btn">&#9664;</button>
+            <div class="menu">
+                <!-- ปุ่ม คลังโน้ต ลิงก์กลับหน้า note -->
+                <a href="{{ url_for('note') }}"><button class="tab">คลังโน้ต</button></a>
+                <!-- ปุ่ม โน้ตของฉัน ลิงก์ไป my_note.html -->
+                <a href="{{ url_for('my_note') }}"><button class="tab">โน้ตของฉัน</button></a>
+            </div>
+        </div>
+        <div class="search">
+            <input type="text" placeholder="ค้นหา...">
+        </div>
+        <div class="profile">
+            <img src="{{ url_for('static', filename='images/profile.png') }}" alt="profile">
+        </div>
+    </header>
+
+    <main>
+        <div class="category">
+            <button>เทคโนโลยีคอมพิวเตอร์</button>
+            <button>อิเล็กทรอนิกส์และโทรคมนาคม</button>
+            <button>เทคโนโลยีอิเล็กทรอนิก (ต่อเนื่อง)</button>
+        </div>
+
+        <section class="content">
+            <h2>เทคโนโลยีคอมพิวเตอร์</h2>
+            <div class="grid">
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+                <div class="card">....</div>
+            </div>
+            <div class="pagination">
+                <button>&lt;</button>
+                <span>1</span>
+                <button>&gt;</button>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
