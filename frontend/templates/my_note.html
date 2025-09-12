@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>โน้ตของฉัน</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-left">
+            <button class="menu-btn">&#9664;</button>
+            <div class="menu">
+                <a href="{{ url_for('note') }}"><button class="tab">คลังโน้ต</button></a>
+                <button class="tab active">โน้ตของฉัน</button>
+            </div>
+        </div>
+        <div class="search">
+            <input type="text" placeholder="ค้นหาโน้ตของฉัน...">
+        </div>
+        <div class="profile">
+            <img src="{{ url_for('static', filename='images/profile.png') }}" alt="profile">
+        </div>
+    </header>
+
+    <main>
+        <section class="content">
+            <h2>โน้ตของฉัน</h2>
+            <div class="grid">
+                {% for note in user_notes %}
+                    <div class="card">{{ note }}</div>
+                {% endfor %}
+            </div>
+            <div class="pagination">
+                <button>&lt;</button>
+                <span>1</span>
+                <button>&gt;</button>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
