@@ -17,5 +17,9 @@ def submit():
 def note():
     return render_template('note.html')
 
+@app.route('/my_notes')
+def my_note():
+    return render_template('my_note.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
