@@ -21,6 +21,11 @@
         </div>
         <div class="profile">
             <img src="{{ url_for('static', filename='images/profile.png') }}" alt="profile">
+            <!-- ปุ่มล็อกเอาต์ -->
+        <a href="{{ url_for('register') }}">
+            <button class="logout-btn">ออกจากระบบ</button>
+        </a>
+    </div>
         </div>
     </header>
 

@@ -161,3 +161,17 @@ body {
     font-weight: bold;
     color: #555;
 }
+.logout-btn {
+    background-color: #f44336; /* สีแดง */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background-color: #d32f2f;
+}
