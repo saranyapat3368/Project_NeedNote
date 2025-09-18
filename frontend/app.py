@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -11,7 +11,11 @@ def submit():
     name = request.form['name']
     student_id = request.form['student_id']
     password = request.form['password']
-    return f"ลงทะเบียนสำเร็จ: {name}, {student_id}"
+    
+    # (ถ้ามีการบันทึกลงฐานข้อมูล ให้ทำตรงนี้)
+
+    # เสร็จแล้ว redirect ไปหน้า main_note
+    return redirect(url_for('main_note'))
 
 @app.route('/main_note')
 def main_note():
