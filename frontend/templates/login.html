@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ลงทะเบียน - NEED NOTE</title>
+    <title>login - NEED NOTE</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -12,8 +12,9 @@
     </div>
 
     <div class="form-container">
-        <h2>ลงทะเบียน</h2>
+        <h2>เข้าสู่ระบบ</h2>
 
+        <!-- แสดงข้อความ flash -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class="flashes">
@@ -24,10 +25,7 @@
             {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('register') }}" method="POST">
-            <label>ชื่อผู้ใช้ (Username)</label><br>
-            <input type="text" name="username" required><br>
-
+        <form action="{{ url_for('submit') }}" method="POST">
             <label>ชื่อ-สกุล</label><br>
             <input type="text" name="name" required><br>
 
@@ -37,11 +35,11 @@
             <label>รหัสผ่าน</label><br>
             <input type="password" name="password" required><br>
 
-            <button type="submit">สมัครสมาชิก</button>
+            <button type="submit">เข้าสู่ระบบ</button>
         </form>
 
-        <div class="login-link">
-            มีบัญชีแล้ว? <a href="{{ url_for('login') }}">เข้าสู่ระบบ</a>
+        <div class="register-link">
+            ยังไม่มีบัญชี? <a href="{{ url_for('register') }}">ลงทะเบียน</a>
         </div>
     </div>
 

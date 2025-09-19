@@ -10,7 +10,6 @@
         <div class="nav-left">
             <button class="menu-btn">&#9664;</button>
             <div class="menu">
-                <!-- ปุ่ม คลังโน้ต ลิงก์กลับหน้า main_note -->
                 <a href="{{ url_for('main_note') }}"><button class="tab">โน้ตรวม</button></a>
                 <a href="{{ url_for('note') }}"><button class="tab">คลังโน้ต</button></a>
                 <button class="tab active">โน้ตของฉัน</button>
@@ -26,12 +25,19 @@
 
     <main>
         <section class="content">
-            <h2>โน้ตของฉัน</h2>
+            <div class="content-header">
+                <h2>โน้ตของฉัน</h2>
+                <a href="{{ url_for('create_note') }}">
+                    <button class="create-btn">➕ สร้างโน้ตใหม่</button>
+                </a>
+            </div>
+
             <div class="grid">
                 {% for note in user_notes %}
                     <div class="card">{{ note }}</div>
                 {% endfor %}
             </div>
+
             <div class="pagination">
                 <button>&lt;</button>
                 <span>1</span>
