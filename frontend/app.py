@@ -82,6 +82,27 @@ def create_note():
             flash("Invalid file or no file uploaded")
     
     return render_template('create_note.html')
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        name = request.form['name']
+        student_id = request.form['student_id']
+        password = request.form['password']
+
+        # ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
+        if username in user_notes:
+            flash("Username already exists, please try another.")
+            return redirect(url_for('register'))
+
+        # สร้าง user ใหม่ใน dict (จำลองฐานข้อมูล)
+        user_notes[username] = []
+
+        flash("Register successful! Please login.")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

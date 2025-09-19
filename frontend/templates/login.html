@@ -25,12 +25,10 @@
             {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('submit') }}" method="POST">
-            <label>ชื่อ-สกุล</label><br>
-            <input type="text" name="name" required><br>
-
-            <label>รหัสนักศึกษา</label><br>
-            <input type="text" name="student_id" required><br>
+        <!-- ส่งไปยัง route 'login' -->
+        <form action="{{ url_for('login') }}" method="POST">
+            <label>ชื่อผู้ใช้</label><br>
+            <input type="text" name="username" required><br>
 
             <label>รหัสผ่าน</label><br>
             <input type="password" name="password" required><br>
