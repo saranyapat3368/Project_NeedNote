@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>สร้างโน้ตใหม่</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h2>อัปโหลดโน้ตของคุณ</h2>
+        <form action="{{ url_for('upload_note') }}" method="POST" enctype="multipart/form-data">
+            <label>ชื่อโน้ต:</label><br>
+            <input type="text" name="note_title" required><br><br>
+
+            <label>อัปโหลดไฟล์ (PDF หรือรูปภาพ):</label><br>
+            <input type="file" name="note_file" accept=".pdf, image/*" required><br><br>
+
+            <button type="submit">อัปโหลดโน้ต</button>
+        </form>
+    </div>
+</body>
+</html>
