@@ -2,49 +2,76 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ลงทะเบียน - NEED NOTE</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>สมัครสมาชิก</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
+    <style>
+        body {
+            font-family: "Prompt", sans-serif;
+            background: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background-color: #2b6cb0;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        .link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .flash {
+            color: red;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1><i>NEED NOTE</i></h1>
-        <div class="icon">&#128100;</div>
-    </div>
-
-    <div class="form-container">
-        <h2>ลงทะเบียน</h2>
-
+    <div class="register-box">
+        <h2>สมัครสมาชิก</h2>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <ul class="flashes">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
+                <div class="flash">{{ messages[0] }}</div>
             {% endif %}
         {% endwith %}
-
-        <form action="{{ url_for('register') }}" method="POST">
-            <label>ชื่อผู้ใช้ (Username)</label><br>
-            <input type="text" name="username" required><br>
-
-            <label>ชื่อ-สกุล</label><br>
-            <input type="text" name="name" required><br>
-
-            <label>รหัสนักศึกษา</label><br>
-            <input type="text" name="student_id" required><br>
-
-            <label>รหัสผ่าน</label><br>
-            <input type="password" name="password" required><br>
-
+        <form method="POST">
+            <input type="text" name="name" placeholder="ชื่อ-นามสกุล" required>
+            <input type="text" name="student_id" placeholder="รหัสนักศึกษา" required>
+            <input type="email" name="username" placeholder="อีเมล" required>
+            <input type="password" name="password" placeholder="รหัสผ่าน" required>
             <button type="submit">สมัครสมาชิก</button>
         </form>
-
-        <div class="login-link">
-            มีบัญชีแล้ว? <a href="{{ url_for('login') }}">เข้าสู่ระบบ</a>
+        <div class="link">
+            <a href="{{ url_for('login') }}">เข้าสู่ระบบ</a>
         </div>
     </div>
-
-    <div class="help-link">ดูวิดีโอแนะนำ</div>
 </body>
 </html>

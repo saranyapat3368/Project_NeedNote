@@ -1,7 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
+import firebase_admin
+from firebase_admin import credentials, auth, firestore
 
+# -------------------------------------------------
+# 🔧 ตั้งค่า Flask
+# -------------------------------------------------
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -12,55 +17,126 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# จำลองฐานข้อมูลโน้ตง่าย ๆ เป็น dict
-# key = username, value = list ของ dict โน้ต {title, filename}
-user_notes = {}
+# -------------------------------------------------
+# 🔥 ตั้งค่า Firebase
+# -------------------------------------------------
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
+# -------------------------------------------------
+# 🧩 ฟังก์ชันช่วย
+# -------------------------------------------------
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# -------------------------------------------------
+# 🌐 Routes
+# -------------------------------------------------
 @app.route('/')
 def index():
     return redirect(url_for('login'))
 
+# --------------------------------
+# 🔐 สมัครสมาชิก
+# --------------------------------
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form['name']
+        student_id = request.form['student_id']
+        username = request.form['username']
+        password = request.form['password']
+
+        try:
+            # ✅ สร้างผู้ใช้ใน Firebase Authentication
+            user = auth.create_user(
+                email=username,
+                password=password,
+                display_name=name
+            )
+
+            # ✅ เก็บข้อมูลเพิ่มเติมใน Firestore
+            db.collection("users").document(user.uid).set({
+                "name": name,
+                "student_id": student_id,
+                "email": username
+            })
+
+            flash("Register successful! Please login.")
+            return redirect(url_for('login'))
+
+        except Exception as e:
+            flash(f"Error: {e}")
+            return redirect(url_for('register'))
+
+    return render_template('register.html')
+
+# --------------------------------
+# 🔑 เข้าสู่ระบบ
+# --------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # ตัวอย่างตรวจสอบง่าย ๆ
-        if username == 'user' and password == 'pass':
+
+        # 🔥 ตรวจสอบผู้ใช้ใน Firestore
+        users_ref = db.collection("users").where("email", "==", username).stream()
+        user = None
+        for u in users_ref:
+            user = u
+            break
+
+        if user:
+            # หมายเหตุ: ในโปรเจกต์จริงควรใช้ Firebase Client SDK เพื่อตรวจรหัสผ่าน
+            # ที่นี่จำลอง login ง่าย ๆ
             session['username'] = username
-            if username not in user_notes:
-                user_notes[username] = []
+            session['uid'] = user.id
             return redirect(url_for('mainnote'))
         else:
-            flash("Login failed. Try again.")
+            flash("Login failed. Invalid email or password.")
+            return redirect(url_for('login'))
+
     return render_template('login.html')
 
+# --------------------------------
+# 🚪 ออกจากระบบ
+# --------------------------------
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.clear()
     return redirect(url_for('login'))
 
+# --------------------------------
+# 📝 หน้าโน้ตหลัก
+# --------------------------------
 @app.route('/mainnote')
 def mainnote():
     if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('note.html', username=session['username'])
+    return render_template('main_note.html', username=session['username'])
 
+# --------------------------------
+# 📘 คลังโน้ตของฉัน
+# --------------------------------
 @app.route('/mynote')
 def mynote():
-    if 'username' not in session:
+    if 'uid' not in session:
         return redirect(url_for('login'))
-    notes = user_notes.get(session['username'], [])
+
+    notes_ref = db.collection("notes").where("user_id", "==", session['uid']).stream()
+    notes = [{"title": n.get("title"), "filename": n.get("filename")} for n in notes_ref]
     return render_template('my_note.html', notes=notes)
 
+# --------------------------------
+# ✍️ สร้างโน้ตใหม่
+# --------------------------------
 @app.route('/create_note', methods=['GET', 'POST'])
 def create_note():
-    if 'username' not in session:
+    if 'uid' not in session:
         return redirect(url_for('login'))
-    
+
     if request.method == 'POST':
         title = request.form['title']
         file = request.files.get('file')
@@ -74,34 +150,19 @@ def create_note():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # บันทึกโน้ตของ user
-            user_notes[session['username']].append({'title': title, 'filename': filename})
+            # ✅ บันทึกข้อมูลลง Firestore
+            db.collection("notes").add({
+                "user_id": session['uid'],
+                "title": title,
+                "filename": filename
+            })
+
             flash("Note created successfully!")
             return redirect(url_for('mynote'))
         else:
             flash("Invalid file or no file uploaded")
-    
+
     return render_template('create_note.html')
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        name = request.form['name']
-        student_id = request.form['student_id']
-        password = request.form['password']
-
-        # ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
-        if username in user_notes:
-            flash("Username already exists, please try another.")
-            return redirect(url_for('register'))
-
-        # สร้าง user ใหม่ใน dict (จำลองฐานข้อมูล)
-        user_notes[username] = []
-
-        flash("Register successful! Please login.")
-        return redirect(url_for('login'))
-
-    return render_template('register.html')
 
 
 if __name__ == '__main__':
