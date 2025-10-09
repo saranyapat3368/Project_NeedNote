@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="content-header">
+    <h1>Setting</h1>
+</div>
+
+<div class="settings-menu">
+    <a href="{{ url_for('manage_notes') }}" class="settings-button">
+        <span class="btn-icon">📝</span>
+        <span>จัดการโน้ต</span>
+    </a>
+    <a href="{{ url_for('report_inappropriate_notes') }}" class="settings-button">
+        <span class="btn-icon">🔔</span>
+        <span>รายงานโน้ตที่ไม่เหมาะสม</span>
+    </a>
+    <a href="{{ url_for('report_copyright') }}" class="settings-button">
+        <span class="btn-icon">©️</span>
+        <span>รายงานการละเมิดลิขสิทธิ์</span>
+    </a>
+    <a href="{{ url_for('report_inappropriate_comments') }}" class="settings-button">
+        <span class="btn-icon">💬</span>
+        <span>รายงานคอมเมนต์ที่ไม่เหมาะสม</span>
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="content-header">
+    <h1>Dashboard</h1>
+</div>
+<div class="dashboard-grid">
+    <div class="card">
+        <h2>{{ stats.total_users }}</h2>
+        <p>Total Users</p>
+    </div>
+    <div class="card">
+        <h2>{{ stats.logins_today }}</h2>
+        <p>Logins Today</p>
+    </div>
+    <div class="card">
+        <h2>{{ stats.total_views }}</h2>
+        <p>Total Views</p>
+    </div>
+    
+    <div class="card large chart-container">
+        <h3>Logins in Last 7 Days</h3>
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ดึงข้อมูลจาก API ที่เราสร้างไว้
+        fetch('/api/chart-data')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('myChart');
+
+                new Chart(ctx, {
+                    type: 'bar', // ประเภทของกราฟ (แท่ง)
+                    data: {
+                        labels: data.labels, // ป้ายกำกับแกน X (วันที่)
+                        datasets: [{
+                            label: '# of Logins',
+                            data: data.data, // ข้อมูลแกน Y (จำนวน)
+                            backgroundColor: 'rgba(195, 161, 255, 0.6)',
+                            borderColor: 'rgba(195, 161, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1 // ให้แกน Y นับทีละ 1
+                                }
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            });
+    });
+</script>
+{% endblock %}
