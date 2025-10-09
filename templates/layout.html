@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    {% if session['user'] %}
+    <header>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-button {% if request.path == url_for('dashboard') %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('users_management') }}" class="nav-button {% if request.path == url_for('users_management') %}active{% endif %}">Users Management</a>
+            <a href="{{ url_for('settings') }}" class="nav-button {% if request.path == url_for('settings') %}active{% endif %}">Setting</a>
+        </nav>
+        <div class="menu-container">
+             <div class="hamburger-menu" onclick="toggleMenu()">
+                &#9776; </div>
+             <div id="dropdown-menu" class="dropdown-content">
+                <a href="{{ url_for('logout') }}">Logout</a>
+             </div>
+        </div>
+    </header>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("dropdown-menu").classList.toggle("show");
+        }
+        window.onclick = function(event) {
+          if (!event.target.matches('.hamburger-menu')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        }
+    </script>
+</body>
+</html>
