@@ -3,5 +3,48 @@
 {% block content %}
 <div class="content-header">
     <h1>รายงานคอมเมนต์ที่ไม่เหมาะสม</h1>
+</div>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
     </div>
+  {% endif %}
+{% endwith %}
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>อันดับ</th>
+                <th>คอมเมนต์</th>
+                <th>เหตุผลในการรายงาน</th>
+                <th>อนุมัติ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.rank }}</td>
+                <td>{{ report.commentText }}</td>
+                <td>{{ report.reason }}</td>
+                <td class="action-buttons">
+                    <a href="{{ url_for('resolve_comment_report', report_id=report.reportId, comment_doc_id=report.commentDocId) }}" 
+                       class="btn-action btn-delete" 
+                       onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบคอมเมนต์นี้และจัดการรายงานนี้?');">
+                        ลบคอมเมนต์
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center;">ไม่พบรายงานคอมเมนต์ที่ไม่เหมาะสม</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

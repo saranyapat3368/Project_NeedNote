@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
-{% block title %}Copyright Infringement Report{% endblock %}
+{% block title %}Inappropriate Notes Report{% endblock %}
 {% block content %}
 <div class="content-header">
-    <h1>รายงานการละเมิดลิขสิทธิ์</h1>
+    <h1>รายงานโน้ตที่ไม่เหมาะสม</h1>
 </div>
 
 {% with messages = get_flashed_messages() %}
@@ -23,7 +23,6 @@
                 <th>เจ้าของโน้ต</th>
                 <th>รายวิชา</th>
                 <th>เหตุผลในการรายงาน</th>
-                <th>หลักฐาน</th>
                 <th>อนุมัติ</th>
             </tr>
         </thead>
@@ -34,11 +33,8 @@
                 <td>{{ report.owner }}</td>
                 <td>{{ report.subject }}</td>
                 <td>{{ report.reason }}</td>
-                <td>
-                    <a href="{{ report.evidence }}" target="_blank" rel="noopener noreferrer">ดูหลักฐาน</a>
-                </td>
                 <td class="action-buttons">
-                    <a href="{{ url_for('resolve_copyright_report', report_id=report.reportId, note_doc_id=report.noteDocId) }}" 
+                    <a href="{{ url_for('resolve_report_delete_note', report_id=report.reportId, note_doc_id=report.noteDocId) }}" 
                        class="btn-action btn-delete" 
                        onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบโน้ตนี้และจัดการรายงานนี้?');">
                         ลบโน้ต
@@ -47,7 +43,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="6" style="text-align: center;">ไม่พบรายงานการละเมิดลิขสิทธิ์</td>
+                <td colspan="5" style="text-align: center;">ไม่พบรายงานโน้ตที่ไม่เหมาะสม</td>
             </tr>
             {% endfor %}
         </tbody>
