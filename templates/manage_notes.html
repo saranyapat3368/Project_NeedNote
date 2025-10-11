@@ -3,5 +3,45 @@
 {% block content %}
 <div class="content-header">
     <h1>จัดการโน้ต</h1>
+</div>
+
+<div class="table-container">
+    <form method="GET" action="{{ url_for('manage_notes') }}" class="search-form">
+        <input type="text" name="search_query" placeholder="Search by note subject..." value="{{ search_query or '' }}">
+        <button type="submit">ค้นหา</button>
+    </form>
+
+    <div class="month-navigator">
+        <a href="{{ url_for('manage_notes', year=prev_month.year, month=prev_month.month) }}" class="month-btn">‹ Previous Month</a>
+        <h2>{{ month_header }}</h2>
+        <a href="{{ url_for('manage_notes', year=next_month.year, month=next_month.month) }}" class="month-btn">Next Month ›</a>
     </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>อันดับ</th>
+                <th>เจ้าของโน้ต</th>
+                <th>รายวิชา</th>
+                <th>จำนวนเข้าคลัง (ทั้งหมด)</th>
+                <th>จำนวนการรับชม (เดือนนี้)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for note in notes %}
+            <tr>
+                <td>{{ note.rank }}</td>
+                <td>{{ note.owner }}</td>
+                <td>{{ note.subject }}</td>
+                <td>{{ note.saves }}</td>
+                <td>{{ note.views }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center;">ไม่พบข้อมูลโน้ต</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

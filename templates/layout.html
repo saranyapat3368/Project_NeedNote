@@ -14,13 +14,14 @@
     {% if session['user'] %}
     <header>
         <nav>
-            <a href="{{ url_for('dashboard') }}" class="nav-button {% if request.path == url_for('dashboard') %}active{% endif %}">Dashboard</a>
-            <a href="{{ url_for('users_management') }}" class="nav-button {% if request.path == url_for('users_management') %}active{% endif %}">Users Management</a>
-            <a href="{{ url_for('settings') }}" class="nav-button {% if request.path == url_for('settings') %}active{% endif %}">Setting</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-button">Dashboard</a>
+            <a href="{{ url_for('users_management') }}" class="nav-button">Users Management</a>
+            <a href="{{ url_for('settings') }}" class="nav-button">Setting</a>
         </nav>
         <div class="menu-container">
              <div class="hamburger-menu" onclick="toggleMenu()">
-                &#9776; </div>
+                &#9776;
+             </div>
              <div id="dropdown-menu" class="dropdown-content">
                 <a href="{{ url_for('logout') }}">Logout</a>
              </div>
@@ -29,6 +30,10 @@
     {% endif %}
 
     <main>
+        {% if show_back_button %}
+        <button onclick="history.back()" class="back-button">← ย้อนกลับ</button>
+        {% endif %}
+        
         {% block content %}{% endblock %}
     </main>
 
