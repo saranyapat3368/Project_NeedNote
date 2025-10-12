@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ดูโน้ต</title>
+</head>
+<body style="background-color: #EDE7F6;">
+    <h1 style="text-align:center;">ดูโน้ต: {{ note_id }}</h1>
+
+    <!-- สมมุติแสดงโน้ต -->
+    <div style="text-align:center;">
+        <p>แสดงไฟล์โน้ตของผู้ใช้...</p>
+    </div>
+
+    <div style="width:300px; margin:auto;">
+        <form method="POST" action="#">
+            <label>แสดงความคิดเห็น</label><br>
+            <textarea name="comment" rows="4" style="width:100%;" placeholder="เขียนคอมเมนต์..."></textarea><br><br>
+            <button type="submit">ส่งความคิดเห็น</button>
+        </form>
+
+        <br>
+        <form method="POST" action="#">
+            <button style="background:red; color:white;" type="submit">รายงานโน้ตนี้</button>
+        </form>
+    </div>
+</body>
+</html>

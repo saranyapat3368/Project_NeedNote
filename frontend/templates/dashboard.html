@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>โน้ตทั้งหมด</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+    <div class="left-icons">
+        <a href="{{ url_for('create_note') }}" class="icon-btn">➕</a>
+        <button class="icon-btn">🔖</button>
+    </div>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='img/siet_logo.png') }}">
+        <img src="{{ url_for('static', filename='img/kmitl_logo.png') }}">
+    </div>
+    <div class="right-profile">
+        <img src="{{ url_for('static', filename='img/profile_icon.png') }}" class="profile-icon">
+    </div>
+</header>
+
+    <section class="search-filter">
+        <input type="text" class="search-box-large" placeholder="ค้นหาโน้ต...">
+        <select class="branch-filter">
+            <option value="">ทุกสาขา</option>
+            <option value="CS">เทคโนโลยีคอมพิวเตอร์</option>
+            <option value="ET">อิเล็กทรอนิกส์โทรคมนาคม</option>
+        </select>
+    </section>
+
+    <main class="note-grid">
+        {% for i in range(10) %}
+        <div class="note-card">
+            <div class="note-thumbnail"></div>
+            <p class="note-title">📄 ชื่อโน้ต {{ i+1 }}</p>
+        </div>
+        {% endfor %}
+    </main>
+
+</body>
+</html>

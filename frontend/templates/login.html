@@ -2,74 +2,45 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เข้าสู่ระบบ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
-    <style>
-        body {
-            font-family: "Prompt", sans-serif;
-            background: #f0f4f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background-color: #ff99bb;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #f0f0f0;
-        }
-        .link {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .flash {
-            color: red;
-            text-align: center;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ | NEED NOTE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylee.css') }}">
 </head>
-<body>
-    <div class="login-box">
-        <h2>เข้าสู่ระบบ</h2>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash">{{ messages[0] }}</div>
-            {% endif %}
-        {% endwith %}
-        <form method="POST">
-            <input type="email" name="username" placeholder="อีเมล" required>
-            <input type="password" name="password" placeholder="รหัสผ่าน" required>
-            <button type="submit">เข้าสู่ระบบ</button>
-        </form>
-        <div class="link">
-            <a href="{{ url_for('register') }}">สมัครสมาชิก</a>
+<body class="login-page">
+    <div class="header-banner">
+        <div class="header-content">
+            <div class="logo-text">
+                <span class="logo-siet">SIET</span> | <span class="logo-kmitl">KMITL</span>
+            </div>
+            <div class="user-icon">👤</div>
+        </div>
+        <div class="title-bar">
+            <h1>NEED NOTE</h1>
         </div>
     </div>
+
+    <div class="main-container">
+        <div class="login-box">
+            <h2 class="form-title">กรุณาล็อกอินเพื่อเข้าสู่ระบบ</h2>
+            <form method="POST" action="/login">
+                <div class="input-group">
+                    <label for="student_id">username/studentID</label>
+                    <input type="text" id="student_id" name="student_id" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="submit-button">เข้าสู่ระบบ</button>
+            </form>
+            <div class="forgot-register-links">
+                <a href="#" class="forgot-link">ลืมรหัสผ่าน?</a>
+                <a href="/register" class="register-btn-inline">ลงทะเบียน</a>
+            </div>
+        </div>
+        
+        <a href="/register" class="register-btn-floating">ลงทะเบียนสำหรับผู้ใช้ใหม่</a>
+    </div>
+
 </body>
 </html>

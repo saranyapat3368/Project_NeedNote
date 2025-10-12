@@ -2,234 +2,57 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>สร้างโน้ตใหม่</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='note.css') }}">
-    
-    <style>
-        /* --- General Layout and Header Styles --- */
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0; /* Light background for the page body */
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #ffc0cb; /* Pink header background color approximation */
-            position: relative;
-        }
-        .header-icons {
-            display: flex;
-            gap: 15px;
-            font-size: 24px;
-            color: black;
-        }
-        .header-icons button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            font-size: 24px;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .logo-text {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        .profile-image-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f7e0e7;
-            border: 2px solid #ff99bb;
-            overflow: hidden;
-        }
-
-        /* --- Search/Dropdown Area (Blue/Purple bar) --- */
-        .search-area {
-            background-color: #c9c5f4; /* Blue/Purple color approximation */
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .search-placeholder {
-            width: 50%;
-            padding: 10px;
-            background-color: white;
-            border-radius: 20px;
-            display: flex;
-            justify-content: flex-end; /* Push the arrow to the right */
-            align-items: center;
-        }
-        .dropdown-arrow {
-            font-size: 1.2em;
-        }
-
-        /* --- Main Form Content Styles --- */
-        .upload-container {
-            width: 80%;
-            max-width: 900px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .upload-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            font-weight: normal;
-        }
-        .form-layout {
-            display: flex;
-            gap: 40px;
-            align-items: flex-start;
-        }
-        .file-upload-section {
-            flex-shrink: 0; /* Prevents this section from shrinking */
-        }
-        .upload-box {
-            width: 200px;
-            height: 250px;
-            background-color: #e0e0e0; /* Grey box */
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-        }
-        .upload-icon {
-            font-size: 50px;
-            color: #666;
-        }
-        
-        .note-details-section {
-            flex-grow: 1; /* Allows this section to take up available space */
-        }
-        .form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            width: 150px; /* Adjust label width for alignment */
-            margin-right: 15px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .form-group input {
-            flex-grow: 1;
-            padding: 10px;
-            background-color: #f0f0f0; /* Light grey input background */
-            border: none;
-            border-radius: 20px;
-            font-size: 1em;
-            height: 20px; /* Adjust height for visual size */
-        }
-
-        /* --- Action Buttons --- */
-        .action-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 50px;
-        }
-        .btn {
-            padding: 10px 30px;
-            border: none;
-            border-radius: 20px;
-            font-size: 1em;
-            cursor: pointer;
-            font-weight: bold;
-            min-width: 100px;
-        }
-        .btn-cancel {
-            background-color: #ff4d4d; /* Red color approximation */
-            color: white;
-        }
-        .btn-upload {
-            background-color: #00ff80; /* Bright green color approximation */
-            color: white;
-        }
-        
-        /* Hide the actual file input, as the image uses a custom box */
-        #note_file {
-            display: none; 
-        }
-    </style>
+    <title>สร้างโน้ต</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
 <body>
+
     <header class="header">
-        <div class="header-icons">
-            <button onclick="history.back()">&#43;</button> 
-            <button>&#9734;</button> 
+        <div class="left-icons">
+            <button class="icon-btn">☰</button>
+            <button class="icon-btn">🔖</button>
         </div>
-
-        <div class="logo-container">
-            <span class="logo-text">SIET | KMITL</span>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/siet_logo.png') }}">
+            <img src="{{ url_for('static', filename='img/kmitl_logo.png') }}">
         </div>
-
-        <div class="profile-image-circle">
-            </div>
+        <div class="right-profile">
+            <input type="text" placeholder="ค้นหา..." class="search-box">
+            <img src="{{ url_for('static', filename='img/profile_icon.png') }}" class="profile-icon">
+        </div>
     </header>
 
-    <div class="search-area">
-        <div class="search-placeholder">
-            <span class="dropdown-arrow">&#9662;</span>
-        </div>
-    </div>
+    <main class="create-note-container">
+        <h2>อัปโหลดโน้ต</h2>
 
-    <div class="upload-container">
-        <h2 class="upload-title">อัปโหลดโน้ต</h2>
-
-        <form action="{{ url_for('upload_note') }}" method="POST" enctype="multipart/form-data">
-            
-            <div class="form-layout">
-                
-                <div class="file-upload-section">
-                    <label for="note_file">
-                        <div class="upload-box">
-                            <span class="upload-icon">&#43;</span>
-                        </div>
-                    </label>
-                    <input type="file" id="note_file" name="note_file" accept=".pdf, image/*" required>
-                </div>
-                
-                <div class="note-details-section">
-                    <div class="form-group">
-                        <label for="department_branch">ภาคครุศาสตร์อุตสาหกรรม สาขา :</label>
-                        <input type="text" id="department_branch" name="department_branch" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject_name">วิชา :</label>
-                        <input type="text" id="subject_name" name="subject_name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="student_year">ชั้นปีที่ :</label>
-                        <input type="text" id="student_year" name="student_year" required>
-                    </div>
-                    
-                    </div>
+        <form method="POST" enctype="multipart/form-data" class="note-form">
+            <div class="upload-box">
+                <label for="note_file">+</label>
+                <input type="file" id="note_file" name="note_file" accept=".pdf,.png" required>
             </div>
 
-            <div class="action-buttons">
-                <button type="button" class="btn btn-cancel" onclick="history.back()">ยกเลิก</button>
-                <button type="submit" class="btn btn-upload">อัปโหลด</button>
+            <div class="note-info">
+                <label>อีเมล:</label>
+                <input type="email" value="example@student.com" readonly>
+
+                <label>วิชา:</label>
+                <input type="text" name="subject" placeholder="ระบุชื่อวิชา" required>
+
+                <label>สาขา:</label>
+                <select name="branch" required>
+                    <option value="">-- เลือกสาขา --</option>
+                    <option value="CS">เทคโนโลยีคอมพิวเตอร์</option>
+                    <option value="ET">อิเล็กทรอนิกส์โทรคมนาคม</option>
+                </select>
             </div>
-            
+
+            <div class="form-buttons">
+                <button type="submit" class="btn green">ยืนยัน</button>
+                <a href="/dashboard" class="btn red">ยกเลิก</a>
+            </div>
         </form>
-    </div>
+    </main>
+
 </body>
 </html>

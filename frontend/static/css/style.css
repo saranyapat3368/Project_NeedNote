@@ -1,0 +1,194 @@
+body {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    background-color: #F5F5F5;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffa3e2;
+    padding: 10px 20px;
+}
+
+.left-icons, .right-profile {
+    display: flex;
+    align-items: center;
+}
+
+.icon-btn {
+    font-size: 20px;
+    background: none;
+    border: none;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.logo img {
+    height: 40px;
+    margin: 0 5px;
+}
+
+.search-box {
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+}
+
+.profile-icon {
+    height: 40px;
+    border-radius: 50%;
+}
+
+.create-note-container {
+    width: 80%;
+    max-width: 900px;
+    background: white;
+    margin: 30px auto;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.create-note-container h2 {
+    text-align: left;
+    color: #444;
+}
+
+.note-form {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.upload-box {
+    width: 200px;
+    height: 250px;
+    background: #E0E0E0;
+    border: 2px dashed #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: #777;
+    cursor: pointer;
+    position: relative;
+}
+
+.upload-box input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.note-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.note-info label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.note-info input, .note-info select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    text-align: center;
+    min-width: 100px;
+}
+
+.btn.green {
+    background-color: #00C853;
+    color: white;
+}
+
+.btn.red {
+    background-color: #FF1744;
+    color: white;
+}
+.search-filter {
+    background-color: #C5CAE9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    gap: 10px;
+}
+
+.search-box-large {
+    width: 300px;
+    padding: 8px 15px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+}
+
+.branch-filter {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #aaa;
+}
+
+.arrow-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.note-card {
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.note-card:hover {
+    transform: scale(1.05);
+}
+
+.note-thumbnail {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background-color: #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.note-title {
+    font-size: 14px;
+    color: #333;
+}

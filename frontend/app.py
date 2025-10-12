@@ -1,203 +1,117 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.utils import secure_filename
-import firebase_admin
-from firebase_admin import credentials, auth, firestore
+from flask import Flask, render_template, request, redirect, url_for, flash
 
-# -------------------------------------------------
-# 🔧 ตั้งค่า Flask
-# -------------------------------------------------
 app = Flask(__name__)
-# ⚠️ เปลี่ยน Secret Key ให้ปลอดภัย
-app.secret_key = 'your_secret_key' 
+app.secret_key = 'your_secret_key'  # ใช้สำหรับ flash message
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# mock data สำหรับโน้ตและคอมเมนต์
+notes = {
+    "1": {
+        "title": "โน้ตเทคโนโลยีคอมพิวเตอร์",
+        "subject": "คอมพิวเตอร์เบื้องต้น",
+        "branch": "เทคโนโลยีคอมพิวเตอร์",
+        "year": "1",
+        "file_url": "/static/files/sample1.pdf",
+        "comments": [
+            {"id": "c1", "user": "user1", "text": "โน้ตดีมากครับ", "reports": 0}
+        ],
+        "reports": 0
+    },
+    "2": {
+        "title": "โน้ตอิเล็กทรอนิกส์โทรคมนาคม",
+        "subject": "โทรคมนาคมขั้นสูง",
+        "branch": "อิเล็กทรอนิกส์โทรคมนาคม",
+        "year": "2",
+        "file_url": "/static/files/sample2.pdf",
+        "comments": [],
+        "reports": 0
+    }
+}
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-# -------------------------------------------------
-# 🔥 ตั้งค่า Firebase
-# -------------------------------------------------
-# ⚠️ ตรวจสอบให้แน่ใจว่าไฟล์ serviceAccountKey.json อยู่ในไดเรกทอรีเดียวกันกับ app.py
-try:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
-    db = firestore.client()
-except FileNotFoundError:
-    print("FATAL: serviceAccountKey.json not found. Firebase functionality will fail.")
-    db = None 
-
-# -------------------------------------------------
-# 🧩 ฟังก์ชันช่วย
-# -------------------------------------------------
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# -------------------------------------------------
-# 🌐 Routes
-# -------------------------------------------------
 @app.route('/')
-def index():
+def home():
     return redirect(url_for('login'))
 
-# --------------------------------
-# 🔐 สมัครสมาชิก
-# --------------------------------
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        name = request.form['name']
-        student_id = request.form['student_id']
-        username = request.form['username']
-        password = request.form['password']
-
-        try:
-            # ✅ สร้างผู้ใช้ใน Firebase Authentication
-            user = auth.create_user(
-                email=username,
-                password=password,
-                display_name=name
-            )
-
-            # ✅ เก็บข้อมูลเพิ่มเติมใน Firestore
-            if db:
-                db.collection("users").document(user.uid).set({
-                    "name": name,
-                    "student_id": student_id,
-                    "email": username
-                })
-
-            flash("Register successful! Please login.")
-            return redirect(url_for('login'))
-
-        except Exception as e:
-            flash(f"Error: {e}")
-            return redirect(url_for('register'))
-
-    return render_template('register.html')
-
-# --------------------------------
-# 🔑 เข้าสู่ระบบ
-# --------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # 🔥 ตรวจสอบผู้ใช้ใน Firestore
-        user = None
-        if db:
-            users_ref = db.collection("users").where("email", "==", username).stream()
-            for u in users_ref:
-                user = u
-                break
-
-        if user:
-            # หมายเหตุ: ในโปรเจกต์จริงควรใช้ Firebase Client SDK เพื่อตรวจรหัสผ่าน
-            # ที่นี่จำลอง login ง่าย ๆ
-            session['username'] = username
-            session['uid'] = user.id
-            flash("เข้าสู่ระบบสำเร็จ!")
-            return redirect(url_for('mainnote'))
-        else:
-            flash("Login failed. Invalid email or password.")
-            return redirect(url_for('login'))
-
+        # mock login
+        return redirect(url_for('dashboard'))
     return render_template('login.html')
 
-# --------------------------------
-# 🚪 ออกจากระบบ
-# --------------------------------
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-# --------------------------------
-# 📝 หน้าโน้ตหลัก
-# --------------------------------
-@app.route('/mainnote')
-def mainnote():
-    if 'username' not in session:
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        # mock register to firebase
         return redirect(url_for('login'))
-    return render_template('main_note.html', username=session['username'])
+    return render_template('register.html')
 
-# --------------------------------
-# 📘 คลังโน้ตของฉัน
-# --------------------------------
-@app.route('/mynote')
-def mynote():
-    if 'uid' not in session:
-        return redirect(url_for('login'))
+@app.route('/dashboard')
+def dashboard():
+    # ส่งโน้ตทั้งหมดไปแสดง
+    return render_template('dashboard.html', notes=notes)
 
-    notes = []
-    if db:
-        notes_ref = db.collection("notes").where("user_id", "==", session['uid']).stream()
-        # ปรับปรุงการดึงข้อมูลเพื่อแสดงผลใน my_note.html
-        notes = [{"title": n.get("subject_name"), "filename": n.get("filename"), "branch": n.get("department_branch"), "year": n.get("student_year")} for n in notes_ref]
-        
-    return render_template('my_note.html', notes=notes)
-
-# --------------------------------
-# ✍️ สร้างโน้ตใหม่ (ส่วนที่ปรับปรุง)
-# --------------------------------
-@app.route('/create_note', methods=['GET', 'POST'])
+@app.route('/create-note', methods=['GET', 'POST'])
 def create_note():
-    if 'uid' not in session:
-        return redirect(url_for('login'))
+    if request.method == 'POST':
+        # mock upload to firebase
+        # ตัวอย่าง: รับข้อมูลจาก form และไฟล์
+        title = request.form.get('title')
+        subject = request.form.get('subject')
+        branch = request.form.get('branch')
+        year = request.form.get('year')
+        # ไฟล์และข้อมูลอื่นๆ เก็บใน Firebase ฝั่งอื่น
+
+        # สมมติเพิ่มโน้ตใหม่ใน mock data
+        new_id = str(len(notes) + 1)
+        notes[new_id] = {
+            "title": title,
+            "subject": subject,
+            "branch": branch,
+            "year": year,
+            "file_url": "/static/files/sample_uploaded.pdf",  # ตัวอย่างไฟล์
+            "comments": [],
+            "reports": 0
+        }
+        flash("สร้างโน้ตสำเร็จ!")
+        return redirect(url_for('dashboard'))
+    return render_template('create_note.html')
+
+@app.route('/note/<note_id>', methods=['GET', 'POST'])
+def view_note(note_id):
+    note = notes.get(note_id)
+    if not note:
+        flash("ไม่พบโน้ตนี้")
+        return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
-        # 💡 รับข้อมูลตามชื่อฟิลด์ใน HTML
-        department_branch = request.form.get('department_branch')
-        subject_name = request.form.get('subject_name')
-        student_year = request.form.get('student_year')
-        # 💡 รับไฟล์ตามชื่อ 'note_file' ใน HTML
-        file = request.files.get('note_file') 
+        # ตรวจสอบว่าผู้ใช้กดคอมเมนต์หรือรายงาน
+        action = request.form.get('action')
 
-        # ตรวจสอบข้อมูลที่จำเป็น
-        if not all([department_branch, subject_name, student_year]):
-            flash("กรุณากรอกข้อมูลให้ครบทุกช่อง", 'error')
-            return redirect(request.url)
-        
-        # ตรวจสอบและบันทึกไฟล์
-        if file and file.filename != '' and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            
-            if db:
-                try:
-                    # บันทึกไฟล์ลงในโฟลเดอร์ 'uploads'
-                    file.save(filepath)
-
-                    # ✅ บันทึกข้อมูลลง Firestore พร้อมฟิลด์ใหม่ทั้งหมด
-                    db.collection("notes").add({
-                        "user_id": session['uid'],
-                        "department_branch": department_branch,
-                        "subject_name": subject_name,
-                        "student_year": student_year,
-                        "filename": filename,
-                    })
-
-                    flash("อัปโหลดโน้ตสำเร็จ!", 'success')
-                    # Redirect ไปที่หน้าโน้ตของฉัน เพื่อให้ผู้ใช้เห็นโน้ตที่เพิ่งสร้าง
-                    return redirect(url_for('mynote')) 
-
-                except Exception as e:
-                    flash(f"Error during file save or database write: {e}", 'error')
-                    return redirect(request.url)
+        if action == 'comment':
+            user = request.form.get('user', 'Anonymous')
+            comment_text = request.form.get('comment_text')
+            if comment_text:
+                comment_id = f"c{len(note['comments']) + 1}"
+                note['comments'].append({"id": comment_id, "user": user, "text": comment_text, "reports": 0})
+                flash("แสดงความคิดเห็นเรียบร้อย")
             else:
-                 flash("ไม่สามารถเชื่อมต่อฐานข้อมูลได้", 'error')
-                 return redirect(request.url)
-                
-        else:
-            flash("กรุณาเลือกไฟล์ที่ถูกต้อง (.pdf, .png, .jpg, .jpeg) เพื่ออัปโหลด", 'error')
-            return redirect(request.url)
+                flash("กรุณากรอกข้อความคอมเมนต์")
+        
+        elif action == 'report_note':
+            note['reports'] += 1
+            flash("รายงานโน้ตเรียบร้อย")
+        
+        elif action == 'report_comment':
+            comment_id = request.form.get('comment_id')
+            for c in note['comments']:
+                if c['id'] == comment_id:
+                    c['reports'] += 1
+                    flash("รายงานคอมเมนต์เรียบร้อย")
+                    break
 
-    return render_template('create_note.html')
+        return redirect(url_for('view_note', note_id=note_id))
+
+    return render_template('view_note.html', note=note, note_id=note_id)
 
 
 if __name__ == '__main__':

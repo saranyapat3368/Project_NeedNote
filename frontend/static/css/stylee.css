@@ -1,0 +1,192 @@
+/* สีหลักที่ใช้จากรูปภาพ */
+:root {
+    --color-pink-light: #ffa3e2; /* สีชมพูอ่อนของพื้นหลังฟอร์ม */
+    --color-pink-lighter: #fdf5f7; /* สีพื้นหลังของหน้าจอ (คล้ายสีเทาอ่อนมาก) */
+    --color-purple-medium: #a2a2f9; /* สีม่วงของแถบ Banner/Header */
+    --color-green-button: #7ac7a9; /* สีเขียวของปุ่ม Submit */
+    --color-white: #ffffff;
+    --color-black: #333333;
+    --color-text-label: #555555;
+}
+
+/* **รูปแบบทั่วไป** */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-pink-lighter);
+    color: var(--color-black);
+    min-height: 100vh;
+}
+
+/* **ส่วน Header Banner ด้านบน** */
+.header-banner {
+    width: 100%;
+    margin-bottom: 20px; /* ระยะห่างระหว่าง banner กับเนื้อหาหลัก */
+}
+
+.header-content {
+    background-color: var(--color-pink-light); /* แถบชมพูบนสุด */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--color-black);
+    display: flex;
+    align-items: center;
+}
+.logo-siet { color: #d00000; } /* สีแดงสมมติสำหรับ SIET */
+.logo-kmitl { color: #0000a0; } /* สีกรมท่าสมมติสำหรับ KMITL */
+
+.user-icon {
+    font-size: 24px;
+    color: var(--color-black);
+    padding: 5px;
+    border: 1px solid var(--color-black);
+    border-radius: 50%;
+}
+
+.title-bar {
+    background-color: var(--color-purple-medium); /* แถบม่วง */
+    color: var(--color-white);
+    text-align: center;
+    padding: 10px 0;
+}
+.title-bar h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* **ส่วนเนื้อหาหลัก** */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ชื่อหน้า Desktop - 4 หน้าลงทะเบียน */
+.desktop-title {
+    font-size: 20px;
+    font-weight: normal;
+    color: #555;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* **กล่องฟอร์ม Login/Register** */
+.login-box, .register-box {
+    background-color: var(--color-pink-light); /* พื้นหลังฟอร์มชมพูอ่อน */
+    padding: 30px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 350px; /* กำหนดความกว้างตามรูป */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    color: var(--color-black);
+    margin-bottom: 20px;
+}
+
+.form-title-register {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--color-black);
+    margin-bottom: 20px;
+}
+
+
+/* **ช่อง Input** */
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* จัด label ชิดซ้าย */
+}
+.input-group label {
+    font-size: 12px;
+    color: var(--color-text-label);
+    margin-bottom: 5px;
+}
+.login-box input[type="text"],
+.login-box input[type="password"],
+.register-box input {
+    width: 100%;
+    padding: 8px 10px;
+    margin: 0; /* ล้าง margin ที่อาจมีเดิม */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* **ปุ่ม Submit** */
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-green-button); /* สีเขียวอ่อน */
+    color: var(--color-white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* เพิ่มเงาให้ดูมีมิติ */
+}
+.submit-button:hover {
+    background-color: #68b393;
+}
+
+/* **ส่วนลิงก์ด้านล่างฟอร์ม Login** */
+.forgot-register-links {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-top: 15px;
+}
+.forgot-register-links a {
+    color: #000;
+    text-decoration: none;
+}
+.forgot-register-links a:hover {
+    text-decoration: underline;
+}
+
+/* **ปุ่ม 'ลงทะเบียนสำหรับผู้ใช้ใหม่' (ปุ่มลอย)** */
+.register-btn-floating {
+    background-color: var(--color-purple-medium); /* สีเดียวกับแถบ Banner */
+    color: var(--color-white);
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    position: absolute; /* กำหนดตำแหน่งให้ลอย */
+    right: 20px;
+    top: 300px; /* ปรับให้ตำแหน่งตรงตามรูปภาพ */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.register-btn-floating:hover {
+    background-color: #8c85d6;
+}
+/* ลบปุ่มลอยนี้ออกจากหน้า Register */
+.register-page .register-btn-floating {
+    display: none;
+}
