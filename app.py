@@ -7,8 +7,6 @@ from calendar import month_name
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'a-super-secret-key-for-firebase-project'
-
-# เชื่อมต่อ Key
 try:
     cred = credentials.Certificate('serviceAccountKey.json')
     firebase_admin.initialize_app(cred)
@@ -25,29 +23,6 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
-
-
-# หน้าเว็บหลัก
-# Dashboard
-@app.route('/')
-@login_required
-def dashboard():
-    try:
-        total_users = len(auth.list_users().users)
-        today_start = datetime.combine(datetime.utcnow().date(), datetime.min.time())
-        logins_today_query = db.collection('loginHistory').where('timestamp', '>=', today_start).stream()
-        logins_today = len(list(logins_today_query))
-        total_views = len(list(db.collection('pageViews').stream()))
-        total_notes = len(list(db.collection('notes').stream()))
-    except Exception as e:
-        flash(f"ไม่สามารถโหลดข้อมูลสถิติได้: {e}")
-        total_users, logins_today, total_views, total_notes = 0, 0, 0, 0
-
-    stats = {
-        'total_users': total_users, 'logins_today': logins_today,
-        'total_views': total_views, 'total_notes': total_notes
-    }
-    return render_template('dashboard.html', stats=stats, show_back_button=False)
 
 # Login
 @app.route('/login', methods=['GET', 'POST'])
@@ -77,6 +52,29 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('login'))
 
+
+# Main Pages
+# หน้า Dashboard
+@app.route('/')
+@login_required
+def dashboard():
+    try:
+        total_users = len(auth.list_users().users)
+        today_start = datetime.combine(datetime.utcnow().date(), datetime.min.time())
+        logins_today_query = db.collection('loginHistory').where('timestamp', '>=', today_start).stream()
+        logins_today = len(list(logins_today_query))
+        total_views = len(list(db.collection('pageViews').stream()))
+        total_notes = len(list(db.collection('notes').stream()))
+    except Exception as e:
+        flash(f"ไม่สามารถโหลดข้อมูลสถิติได้: {e}")
+        total_users, logins_today, total_views, total_notes = 0, 0, 0, 0
+
+    stats = {
+        'total_users': total_users, 'logins_today': logins_today,
+        'total_views': total_views, 'total_notes': total_notes
+    }
+    return render_template('dashboard.html', stats=stats, show_back_button=False)
+
 # Users Management
 @app.route('/users')
 @login_required
@@ -93,13 +91,11 @@ def users_management():
         flash(f"เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้: {e}")
     return render_template('users.html', users=users_list, show_back_button=False)
 
-
 # Settings
 @app.route('/settings')
 @login_required
 def settings():
     return render_template('settings.html', show_back_button=False)
-
 
 # Manage Notes
 @app.route('/manage-notes')
@@ -138,7 +134,6 @@ def manage_notes():
                     'saves': note_data.get('viewCount', 0), 'views': '-'
                 })
     else:
-        # ยอดวิวประจำเดือน
         start_of_month = datetime(year, month, 1)
         try: end_of_month = start_of_month.replace(month=start_of_month.month + 1)
         except ValueError: end_of_month = start_of_month.replace(year=start_of_month.year + 1, month=1)
@@ -174,12 +169,13 @@ def manage_notes():
 
 
 # หน้ารายงาน
+# Dashboard แสดงกราฟ
 @app.route('/dashboard/details/<metric>')
 @login_required
 def dashboard_details(metric):
     return render_template('dashboard_details.html', metric_name=metric.replace('_', ' ').title(), show_back_button=True)
 
-# หน้ารายงานโน้ต
+# หน้ารายงานโน้ตไม่เหมาะสม
 @app.route('/reports/inappropriate-notes')
 @login_required
 def report_inappropriate_notes():
@@ -242,7 +238,6 @@ def report_inappropriate_comments():
 
 
 # Actions
-# ปุ่มลบผู้ใช้
 @app.route('/delete_user/<uid>')
 @login_required
 def delete_user(uid):
@@ -253,14 +248,12 @@ def delete_user(uid):
         flash(f"เกิดข้อผิดพลาดในการลบผู้ใช้: {e}")
     return redirect(url_for('users_management'))
 
-# ปุ่ม Role
 @app.route('/toggle_admin/<uid>')
 @login_required
 def toggle_admin(uid):
     try:
         user = auth.get_user(uid)
         current_role = user.custom_claims.get('role') if user.custom_claims else None
-        
         if current_role == 'Admin':
             auth.set_custom_user_claims(uid, None)
             flash(f"{user.email} ไม่ได้เป็น Admin อีกต่อไป")
@@ -271,7 +264,6 @@ def toggle_admin(uid):
         flash(f"เกิดข้อผิดพลาดในการอัปเดต Role: {e}")
     return redirect(url_for('users_management'))
 
-# ปุ่มลบโน้ตโน้ตไม่เหมาะสม
 @app.route('/resolve_report_delete_note/<report_id>/<note_doc_id>')
 @login_required
 def resolve_report_delete_note(report_id, note_doc_id):
@@ -283,7 +275,6 @@ def resolve_report_delete_note(report_id, note_doc_id):
         flash(f"เกิดข้อผิดพลาด: {e}")
     return redirect(url_for('report_inappropriate_notes'))
 
-# ปุ่มลบโน้ตลิขสิทธิ์
 @app.route('/resolve_copyright_report/<report_id>/<note_doc_id>')
 @login_required
 def resolve_copyright_report(report_id, note_doc_id):
@@ -295,7 +286,6 @@ def resolve_copyright_report(report_id, note_doc_id):
         flash(f"เกิดข้อผิดพลาด: {e}")
     return redirect(url_for('report_copyright'))
 
-# ปุ่มลบคอมเมนต์
 @app.route('/resolve_comment_report/<report_id>/<comment_doc_id>')
 @login_required
 def resolve_comment_report(report_id, comment_doc_id):
@@ -307,67 +297,12 @@ def resolve_comment_report(report_id, comment_doc_id):
         flash(f"เกิดข้อผิดพลาด: {e}")
     return redirect(url_for('report_inappropriate_comments'))
 
-
-# API ข้อมูลกราฟ
-@app.route('/api/notes-chart-data')
-@login_required
-def notes_chart_data():
-    labels, data = [], []
-    today = datetime.utcnow().date()
-    
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = datetime.combine(day, datetime.max.time())
-        labels.append(day.strftime("%d/%m"))
-        query = db.collection('notes').where('createdAt', '>=', day_start).where('createdAt', '<=', day_end).stream()
-        count = len(list(query))
-        data.append(count)
-    return jsonify({'labels': labels, 'data': data})
-
-@app.route('/api/views-chart-data')
-@login_required
-def views_chart_data():
-    labels, data = [], []
-    today = datetime.utcnow().date()
-    
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = datetime.combine(day, datetime.max.time())
-        labels.append(day.strftime("%d/%m"))
-        query = db.collection('pageViews').where('timestamp', '>=', day_start).where('timestamp', '<=', day_end).stream()
-        count = len(list(query))
-        data.append(count)
-    return jsonify({'labels': labels, 'data': data})
-
-@app.route('/api/users-chart-data')
-@login_required
-def users_chart_data():
-    labels, data = [], []
-    today = datetime.utcnow().date()
-    
-    seven_days_keys = [(today - timedelta(days=i)).strftime("%d/%m") for i in range(6, -1, -1)]
-    daily_counts = {day_key: 0 for day_key in seven_days_keys}
-    try:
-        for user in auth.list_users().iterate_all():
-            creation_date = datetime.utcfromtimestamp(user.user_metadata.creation_timestamp / 1000).strftime("%d/%m")
-            if creation_date in daily_counts:
-                daily_counts[creation_date] += 1
-    except Exception as e:
-        print(f"Could not fetch user data for chart: {e}")
-
-    labels = list(daily_counts.keys())
-    data = list(daily_counts.values())
-    
-    return jsonify({'labels': labels, 'data': data})
-
+# API กราฟ
 @app.route('/api/logins-chart-data')
 @login_required
 def logins_chart_data():
     labels, data = [], []
     today = datetime.utcnow().date()
-    
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
         day_start = datetime.combine(day, datetime.min.time())
@@ -378,9 +313,56 @@ def logins_chart_data():
         data.append(count)
     return jsonify({'labels': labels, 'data': data})
 
+@app.route('/api/views-chart-data')
+@login_required
+def views_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day, datetime.max.time())
+        labels.append(day.strftime("%d/%m"))
+        query = db.collection('pageViews').where('timestamp', '>=', day_start).where('timestamp', '<=', day_end).stream()
+        count = len(list(query))
+        data.append(count)
+    return jsonify({'labels': labels, 'data': data})
 
-# สร้างข้อมูลทดสอบ
-# ทดสอบการดูโน้ต
+@app.route('/api/notes-chart-data')
+@login_required
+def notes_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day, datetime.max.time())
+        labels.append(day.strftime("%d/%m"))
+        query = db.collection('notes').where('createdAt', '>=', day_start).where('createdAt', '<=', day_end).stream()
+        count = len(list(query))
+        data.append(count)
+    return jsonify({'labels': labels, 'data': data})
+
+@app.route('/api/users-chart-data')
+@login_required
+def users_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    seven_days_keys = [(today - timedelta(days=i)).strftime("%d/%m") for i in range(6, -1, -1)]
+    daily_counts = {day_key: 0 for day_key in seven_days_keys}
+    try:
+        for user in auth.list_users().iterate_all():
+            creation_date = datetime.utcfromtimestamp(user.user_metadata.creation_timestamp / 1000).strftime("%d/%m")
+            if creation_date in daily_counts:
+                daily_counts[creation_date] += 1
+    except Exception as e:
+        print(f"Could not fetch user data for chart: {e}")
+    labels = list(daily_counts.keys())
+    data = list(daily_counts.values())
+    return jsonify({'labels': labels, 'data': data})
+
+
+# ทดสอบฟีเจอร์ต่างๆ
 @app.route('/view_note/<int:note_id>')
 def view_note(note_id):
     db.collection('pageViews').add({'note_id': note_id, 'timestamp': datetime.utcnow()})
@@ -392,7 +374,7 @@ def view_note(note_id):
     except: pass
     return f"คุณกำลังดูโน้ต ID ที่ {note_id}! (บันทึกการดูแล้ว)"
 
-# ทดสอบทำแอดมิน
+# ลองทำแอดมิน
 @app.route('/make-me-admin')
 def make_me_admin():
     try:
@@ -416,7 +398,7 @@ def create_sample_notes():
         db.collection('notes').add(note)
     return "สร้างโน้ตตัวอย่างที่มี subject_lowercase สำเร็จ!"
 
-# สร้างรายงานตัวอย่าง
+# สร้างรายงานโน้ต
 @app.route('/create_sample_reports')
 def create_sample_reports():
     notes_ref = db.collection('notes').limit(2).stream()
@@ -429,7 +411,7 @@ def create_sample_reports():
     for report in reports_data: db.collection('reportedNotes').add(report)
     return "สร้างรายงาน (โน้ตไม่เหมาะสม) ตัวอย่างสำเร็จ!"
 
-# สร้างรายงานลิขสิทธิ์ตัวอย่าง
+# สร้างรายงานลิขสิทธิ์
 @app.route('/create_sample_copyright_reports')
 def create_sample_copyright_reports():
     notes_ref = db.collection('notes').limit(2).stream()
@@ -442,7 +424,7 @@ def create_sample_copyright_reports():
     for report in reports_data: db.collection('copyrightReports').add(report)
     return "สร้างรายงาน (ลิขสิทธิ์) ตัวอย่างสำเร็จ!"
 
-# สร้างรายงานคอมเมนต์ตัวอย่าง
+# สร้างรายงานคอมเมน
 @app.route('/create_sample_comment_reports')
 def create_sample_comment_reports():
     reports_data = [
@@ -451,15 +433,6 @@ def create_sample_comment_reports():
     ]
     for report in reports_data: db.collection('reportedComments').add(report)
     return "สร้างรายงาน (คอมเมนต์) ตัวอย่างสำเร็จ!"
-
-# frontend users
-@app.route('/home')
-def user_homepage():
-    return render_template('user_homepage.html')
-
-@app.route('/profile')
-def user_profile():
-    return render_template('user_profile.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

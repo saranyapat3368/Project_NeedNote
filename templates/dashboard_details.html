@@ -32,11 +32,10 @@
             chartLabel = '# of New Notes';
             chartType = 'line';
         }
-        // --- แก้ไขเงื่อนไขนี้ ---
         else if ("{{ metric_name }}" === "Total Users") {
             apiUrl = '/api/users-chart-data';
             chartLabel = '# of New Users';
-            chartType = 'bar'; // กราฟแท่งจะดูง่ายกว่าสำหรับข้อมูลนี้
+            chartType = 'bar';
         }
 
         if (apiUrl) {
