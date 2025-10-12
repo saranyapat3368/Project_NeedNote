@@ -93,11 +93,13 @@ def users_management():
         flash(f"เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้: {e}")
     return render_template('users.html', users=users_list, show_back_button=False)
 
+
 # Settings
 @app.route('/settings')
 @login_required
 def settings():
     return render_template('settings.html', show_back_button=False)
+
 
 # Manage Notes
 @app.route('/manage-notes')
@@ -307,6 +309,59 @@ def resolve_comment_report(report_id, comment_doc_id):
 
 
 # API ข้อมูลกราฟ
+@app.route('/api/notes-chart-data')
+@login_required
+def notes_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day, datetime.max.time())
+        labels.append(day.strftime("%d/%m"))
+        query = db.collection('notes').where('createdAt', '>=', day_start).where('createdAt', '<=', day_end).stream()
+        count = len(list(query))
+        data.append(count)
+    return jsonify({'labels': labels, 'data': data})
+
+@app.route('/api/views-chart-data')
+@login_required
+def views_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day, datetime.max.time())
+        labels.append(day.strftime("%d/%m"))
+        query = db.collection('pageViews').where('timestamp', '>=', day_start).where('timestamp', '<=', day_end).stream()
+        count = len(list(query))
+        data.append(count)
+    return jsonify({'labels': labels, 'data': data})
+
+@app.route('/api/users-chart-data')
+@login_required
+def users_chart_data():
+    labels, data = [], []
+    today = datetime.utcnow().date()
+    
+    seven_days_keys = [(today - timedelta(days=i)).strftime("%d/%m") for i in range(6, -1, -1)]
+    daily_counts = {day_key: 0 for day_key in seven_days_keys}
+    try:
+        for user in auth.list_users().iterate_all():
+            creation_date = datetime.utcfromtimestamp(user.user_metadata.creation_timestamp / 1000).strftime("%d/%m")
+            if creation_date in daily_counts:
+                daily_counts[creation_date] += 1
+    except Exception as e:
+        print(f"Could not fetch user data for chart: {e}")
+
+    labels = list(daily_counts.keys())
+    data = list(daily_counts.values())
+    
+    return jsonify({'labels': labels, 'data': data})
+
 @app.route('/api/logins-chart-data')
 @login_required
 def logins_chart_data():
@@ -323,35 +378,6 @@ def logins_chart_data():
         data.append(count)
     return jsonify({'labels': labels, 'data': data})
 
-@app.route('/api/views-chart-data')
-@login_required
-def views_chart_data():
-    labels, data = [], []
-    today = datetime.utcnow().date()
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = datetime.combine(day, datetime.max.time())
-        labels.append(day.strftime("%d/%m"))
-        query = db.collection('pageViews').where('timestamp', '>=', day_start).where('timestamp', '<=', day_end).stream()
-        count = len(list(query))
-        data.append(count)
-    return jsonify({'labels': labels, 'data': data})
-
-@app.route('/api/notes-chart-data')
-@login_required
-def notes_chart_data():
-    labels, data = [], []
-    today = datetime.utcnow().date()
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = datetime.combine(day, datetime.max.time())
-        labels.append(day.strftime("%d/%m"))
-        query = db.collection('notes').where('createdAt', '>=', day_start).where('createdAt', '<=', day_end).stream()
-        count = len(list(query))
-        data.append(count)
-    return jsonify({'labels': labels, 'data': data})
 
 # สร้างข้อมูลทดสอบ
 # ทดสอบการดูโน้ต

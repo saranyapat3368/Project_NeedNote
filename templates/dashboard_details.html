@@ -16,7 +16,7 @@
         let apiUrl = '';
         let chartLabel = '';
         let chartType = 'line';
-        
+
         if ("{{ metric_name }}" === "Total Views") {
             apiUrl = '/api/views-chart-data';
             chartLabel = '# of Views';
@@ -32,8 +32,11 @@
             chartLabel = '# of New Notes';
             chartType = 'line';
         }
+        // --- แก้ไขเงื่อนไขนี้ ---
         else if ("{{ metric_name }}" === "Total Users") {
-            document.querySelector('.chart-container').innerHTML = '<p>ยังไม่มีกราฟสำหรับ Total Users</p>';
+            apiUrl = '/api/users-chart-data';
+            chartLabel = '# of New Users';
+            chartType = 'bar'; // กราฟแท่งจะดูง่ายกว่าสำหรับข้อมูลนี้
         }
 
         if (apiUrl) {
@@ -48,7 +51,7 @@
                             datasets: [{
                                 label: chartLabel,
                                 data: data.data,
-                                backgroundColor: 'rgba(255, 174, 240, 0.2)',
+                                backgroundColor: 'rgba(255, 174, 240, 0.6)',
                                 borderColor: 'rgba(255, 174, 240, 1)',
                                 borderWidth: 2,
                                 fill: true,
