@@ -112,7 +112,7 @@ def create_note():
             note_id = str(uuid.uuid4())
             notes[note_id] = {
                 'subject': request.form['subject'],
-                'faculty': request.form.get('faculty', ''),  # ถ้าไม่มีให้ใช้ค่าว่าง
+                'faculty': request.form.get('faculty', ''),  # ถ้าไม่มีให้ใช้ค่าว่าง.
                 'filename': filename,
                 'uploader': session['student_id']
             }
