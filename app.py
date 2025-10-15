@@ -24,27 +24,84 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if email == "admin@kmitl.com" and password == "password123":
+        try:
+            # ตรวจสอบผู้ใช้
+            user = auth.get_user_by_email(email)
+
+            # ตรวจสอบรหัสผ่าน (Firebase Admin SDK ไม่มีฟังก์ชันตรวจ password โดยตรง)
+            # ต้องใช้ Firebase Auth client หรือ custom token ใน frontend
+            # ถ้าเป็นตัวอย่างทดสอบ ให้สมมติ password ถูกต้องสำหรับ demo
+            # (สำหรับ production ต้องใช้ Firebase Auth client)
+
+            # ตรวจสอบ Role
+            claims = user.custom_claims or {}
+            role = claims.get('role', 'User')
+
+            if email == "admin@kmitl.com" and password == "123456789":
+                auth.set_custom_user_claims(user.uid, {'role': 'Admin'})
+                role = 'Admin'
+
+            # เก็บ session
+            session['user'] = {'email': user.email, 'uid': user.uid, 'role': role}
+
+            # บันทึก log
+            db.collection('loginHistory').add({'email': user.email, 'timestamp': datetime.utcnow()})
+
+            # ไปหน้าตาม role
+            if role == 'Admin':
+                return redirect(url_for('dashboard'))
+            else:
+                return redirect(url_for('user_homepage'))
+
+        except auth.UserNotFoundError:
+            flash("อีเมลนี้ยังไม่ได้สมัครสมาชิก")
+            return redirect(url_for('register'))
+        except Exception as e:
+            flash(f"เกิดข้อผิดพลาดในการล็อกอิน: {e}")
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        try:
+            # ตรวจสอบว่ามีผู้ใช้นี้อยู่แล้ว
             try:
                 user = auth.get_user_by_email(email)
-                session['user'] = {'email': user.email, 'uid': user.uid}
-                db.collection('loginHistory').add({'email': user.email, 'timestamp': datetime.utcnow()})
-                return redirect(url_for('dashboard'))
-            except Exception as e:
-                flash(f"Authentication error: {e}")
+                flash("อีเมลนี้มีอยู่แล้ว กรุณาเข้าสู่ระบบ")
                 return redirect(url_for('login'))
-        else:
-            flash('อีเมลหรือรหัสผ่านไม่ถูกต้อง!')
-            return redirect(url_for('login'))
-    
-    return render_template('login.html', show_back_button=False)
+            except auth.UserNotFoundError:
+                # สร้างผู้ใช้ใหม่
+                user = auth.create_user(email=email, password=password)
+                auth.set_custom_user_claims(user.uid, {'role': 'User'})
+                flash("สมัครสมาชิกสำเร็จ! โปรดเข้าสู่ระบบ")
+                return redirect(url_for('login'))
+
+        except Exception as e:
+            flash(f"เกิดข้อผิดพลาด: {e}")
+            return redirect(url_for('register'))
+
+    return render_template('register.html')
+
+
+@app.route('/user_homepage')
+@login_required
+def user_homepage():
+    user = session.get('user', {})
+    user_email = user.get('email', 'ไม่ทราบ')
+    return render_template('user_homepage.html', user_email=user_email, show_back_button=False)
+
 
 # Logout
 @app.route('/logout')

@@ -4,7 +4,7 @@
 <div class="login-body"> 
     <div class="login-container">
         <form class="login-form" method="POST" action="{{ url_for('login') }}">
-            <h2>กรุณาล็อกอินเพื่อเข้าสู่ระบบ Admin</h2>
+            <h2>กรุณาล็อกอินเพื่อเข้าสู่ระบบ</h2>
            
             {% with messages = get_flashed_messages() %}
               {% if messages %}
@@ -21,6 +21,10 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit" class="login-button">เข้าสู่ระบบ</button>
+            <p style="text-align:center; margin-top:10px;">
+    ยังไม่มีบัญชี? <a href="{{ url_for('register') }}">สมัครสมาชิก</a>
+</p>
+
         </form>
     </div>
 </div>

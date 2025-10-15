@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="login-body">
+  <div class="login-container">
+    <form class="login-form" method="POST" action="{{ url_for('register') }}">
+      <h2>สมัครสมาชิกใหม่</h2>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-error">{{ messages[0] }}</div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="form-group">
+        <label for="email">อีเมล</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <button type="submit" class="login-button">สมัครสมาชิก</button>
+      <p style="text-align:center; margin-top:10px;">
+        มีบัญชีอยู่แล้ว? <a href="{{ url_for('login') }}">เข้าสู่ระบบ</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}
