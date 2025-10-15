@@ -2,3 +2,6 @@ Project_NeedNote-frontend/frontend/static/uploads/
 __pycache__/
 *.pyc
 data_store.json
+static/uploads/
+__pycache__/
+*.pyc
