@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <h2 class="page-title">โน้ตทั้งหมด</h2>
+
+    <div class="note-grid">
+        {% for note_id, note in notes.items() | reverse %}
+        <div class="note-card">
+            <a href="{{ url_for('uploaded_file', filename=note.filename) }}" target="_blank" class="note-link">
+                <div class="note-thumbnail">
+                    <span class="file-icon">📄</span>
+                    <p class="file-type">{{ note.filename.rsplit('.', 1)[1] | upper }}</p>
+                </div>
+                <div class="note-details">
+                    <p class="note-title">{{ note.subject }}</p>
+                    <p class="note-branch">{{ note.faculty }}</p>
+                </div>
+            </a>
+            {% if note.uploader == session['student_id'] %}
+            <!-- เพิ่ม class "delete-form" สำหรับ JavaScript -->
+            <form action="{{ url_for('delete_note', note_id=note_id) }}" method="post" class="delete-form">
+                <button type="submit" class="btn-delete">✖</button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+            <p class="empty-message">ยังไม่มีโน้ตในระบบ ลองคลิก "สร้างโน้ต" เพื่ออัปโหลดดูสิ!</p>
+        {% endfor %}
+    </div>
+{% endblock %}

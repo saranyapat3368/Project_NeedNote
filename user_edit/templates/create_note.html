@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}สร้างโน้ตใหม่{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>อัปโหลดโน้ตใหม่</h2>
+
+    <form method="POST" action="{{ url_for('create_note') }}" enctype="multipart/form-data">
+        
+        <div class="input-group">
+            <label for="title">ชื่อเรื่อง</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="subject">วิชา</label>
+            <input type="text" id="subject" name="subject" required>
+        </div>
+
+        <div class="input-group">
+            <label for="faculty">สาขา</label>
+            <input type="text" id="faculty" name="faculty" required>
+        </div>
+
+        <div class="input-group">
+            <label for="note_file">ไฟล์โน้ต (PDF เท่านั้น)</label>
+            <input type="file" id="note_file" name="note_file" accept=".pdf" required>
+        </div>
+        
+        <button type="submit" class="btn green full-width">อัปโหลด</button>
+
+    </form>
+
+    <div class="form-links">
+        <a href="{{ url_for('dashboard') }}">ยกเลิก</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,219 @@
+/* === การตั้งค่าพื้นฐาน === */
+body {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* === ส่วน Header === */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFAEF0;
+    padding: 0.8rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.left-icons, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-link {
+    text-decoration: none;
+    color: #563D7C;
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+.user-info {
+    font-weight: 500;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.btn.green { background-color: #28a745; }
+.btn.green:hover { background-color: #218838; }
+.btn.red { background-color: #dc3545; }
+.btn.red:hover { background-color: #c82333; }
+.btn.blue { background-color: #007bff; }
+.btn.blue:hover { background-color: #0069d9; }
+
+
+/* === หน้า Form (Login, Register, Create Note) === */
+.form-container {
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.btn.full-width {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+}
+.form-buttons-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.form-links {
+    margin-top: 1rem;
+    text-align: center;
+}
+.form-links a {
+    margin: 0 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+.form-links a:hover {
+    text-decoration: underline;
+}
+
+/* === หน้า Dashboard === */
+.page-title {
+    margin-bottom: 1.5rem;
+}
+.note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+.note-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+.note-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.note-thumbnail {
+    height: 150px;
+    background-color: #e9ecef;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.file-icon {
+    font-size: 4rem;
+    color: #adb5bd;
+}
+.file-type {
+    font-weight: bold;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+.note-details {
+    padding: 1rem;
+}
+.note-title {
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.note-branch {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+.delete-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+.note-card:hover .btn-delete {
+    opacity: 1;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+/* === Flash Messages === */
+.flash-messages {
+    margin-bottom: 1rem;
+}
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+.alert-success { background-color: #28a745; }
+.alert-danger { background-color: #dc3545; }
+.alert-info { background-color: #17a2b8; }

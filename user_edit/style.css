@@ -1,0 +1,162 @@
+:root {
+    /* --- NEW: เปลี่ยนสีปุ่มเป็นสีชมพู และปรับสีที่เกี่ยวข้อง --- */
+    --color-header-bg: #FFAEF0;      /* สีชมพูอ่อนสำหรับส่วนหัว (คงเดิม) */
+    --color-nav-button-bg: #C3A1FF;  /* <<<<<<< สีชมพูสำหรับปุ่ม (แก้ไข) */
+    --color-nav-button-border: #C3A1FF; /* สีชมพูเข้มขึ้นสำหรับขอบปุ่ม */
+    --color-dark-pink-text: hsl(261, 81%, 88%); /* สีชมพูเข้มสำหรับตัวอักษรบนปุ่ม */
+    
+    --color-white: #fff;
+    --color-background: #FFFFFF;     /* สีพื้นหลังเว็บ (สีขาว) */
+    --color-card-bg: #F0F0F0;        /* สีเทาอ่อนพื้นหลังของการ์ด */
+    --color-text-dark: #333;
+    --color-text-light: #555;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --border-radius: 12px;
+}
+
+/* === ตั้งค่าพื้นฐานสำหรับทั้งหน้า === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+}
+
+/* === สไตล์ของส่วนหัว (Header) === */
+.main-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2.5rem;
+    background-color: var(--color-header-bg);
+    position: relative; /* <<<<<<< เพิ่ม position relative */
+    justify-content: center; /* <<<<<<< จัดปุ่มเมนูให้อยู่ตรงกลาง (แก้ไข) */
+}
+
+.header-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    color: var(--color-dark-pink-text);
+    background-color: var(--color-nav-button-bg);
+    padding: 0.6rem 1.5rem;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--color-nav-button-border);
+    transition: all 300ms ease;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: var(--color-dark-pink-text);
+    color: var(--color-white);
+    border-color: var(--color-dark-pink-text);
+}
+
+.header-menu {
+    position: absolute; /* <<<<<<< จัดตำแหน่งปุ่ม Hamburger menu (แก้ไข) */
+    right: 2.5rem; /* <<<<<<< ให้อยู่ทางขวาสุด */
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.menu-button .material-icons-sharp {
+    font-size: 2.5rem;
+    color: var(--color-text-dark);
+}
+
+/* === สไตล์ของส่วนเนื้อหาหลัก === */
+.content-area {
+    padding: 2.5rem;
+}
+
+/* ซ่อนทุกหน้าไว้ก่อนเป็นค่าเริ่มต้น */
+.page {
+    display: none;
+}
+
+/* แสดงเฉพาะหน้าที่มีคลาส .active */
+.page.active {
+    display: block;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* === สไตล์ของการ์ดสถิติ (กล่อง 4 กล่องบนสุด) === */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background-color: var(--color-card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    box-shadow: var(--card-shadow);
+}
+
+.stat-card h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+}
+
+.stat-card p {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+}
+
+/* === สไตล์ของการ์ดวิดเจ็ต (กล่อง 4 กล่องใหญ่ด้านล่าง) === */
+.widgets-container {
+    display: grid;
+    gap: 1.5rem;
+    /* จัดการแสดงผลสำหรับหน้าจอขนาดต่างๆ */
+    grid-template-columns: 1fr; /* Mobile first */
+}
+
+.widget-card {
+    background-color: var(--color-card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    min-height: 250px;
+}
+
+.widget-card h2 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--color-text-light);
+}
+
+/* === การจัดวาง Layout สำหรับหน้าจอที่กว้างขึ้น (Desktop) === */
+@media (min-width: 992px) {
+    .widgets-container {
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "views-day recent-note"
+            "latest-users most-viewed";
+    }
+    #views-day { grid-area: views-day; }
+    #recent-note { grid-area: recent-note; }
+    #latest-users { grid-area: latest-users; }
+    #most-viewed { grid-area: most-viewed; }
+}
