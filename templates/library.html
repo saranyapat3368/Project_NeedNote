@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block title %}คลังโน้ต{% endblock %}
+
+{% block content %}
+
+<h2 class="page-title">คลังโน๊ตของฉัน</h2>
+
+{% if my_notes|length == 0 %}
+  <div class="empty-subtext">คุณไม่มีโน๊ต</div>
+{% else %}
+  <div class="note-grid">
+    {% for n in my_notes %}
+    <div class="note-card">
+      <a href="{{ url_for('note_detail', note_id=n.id) }}" class="note-link">
+        <div class="note-thumbnail">
+          <span class="file-icon">📄</span>
+          <p class="file-type">{{ n.filename.rsplit('.', 1)[1] | upper }}</p>
+        </div>
+        <div class="note-details">
+          <p class="note-title">{{ n.title or n.subject }}</p>
+          <p class="note-branch">{{ n.faculty }}</p>
+        </div>
+      </a>
+
+      <div class="card-actions">
+        <a class="chip ghost" href="{{ url_for('note_detail', note_id=n.id) }}">อ่าน</a>
+
+        <button
+          class="chip like"
+          data-like="{{ n.id }}"
+          data-liked="{{ '1' if (n.liked|default(false)) else '0' }}"
+        >
+          {% if n.liked|default(false) %}❤️{% else %}🤍{% endif %} ใจ
+          (<span class="like-count">{{ n.like_count }}</span>)
+        </button>
+
+        <button class="chip warn" data-report="{{ n.id }}">⚠️ รายงาน</button>
+
+        {% if n.uploader == session['student_id'] %}
+        <form action="{{ url_for('delete_note', note_id=n.id) }}" method="post" class="inline-delete-form">
+          <button type="submit" class="chip danger">✖ ลบ</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<hr class="section-divider">
+
+<h2 class="page-title">โน๊ตที่ถูกใจ</h2>
+
+{% if liked_notes|length == 0 %}
+  <div class="empty-subtext">ไม่มีโน๊ตที่ถูกใจ</div>
+{% else %}
+  <div class="note-grid">
+    {% for n in liked_notes %}
+    <div class="note-card">
+      <a href="{{ url_for('note_detail', note_id=n.id) }}" class="note-link">
+        <div class="note-thumbnail">
+          <span class="file-icon">📄</span>
+          <p class="file-type">{{ n.filename.rsplit('.', 1)[1] | upper }}</p>
+        </div>
+        <div class="note-details">
+          <p class="note-title">{{ n.title or n.subject }}</p>
+          <p class="note-branch">{{ n.faculty }}</p>
+        </div>
+      </a>
+
+      <div class="card-actions">
+        <a class="chip ghost" href="{{ url_for('note_detail', note_id=n.id) }}">อ่าน</a>
+
+        <button
+          class="chip like"
+          data-like="{{ n.id }}"
+          data-liked="{{ '1' if (n.liked|default(false)) else '0' }}"
+        >
+          {% if n.liked|default(false) %}❤️{% else %}🤍{% endif %} ใจ
+          (<span class="like-count">{{ n.like_count }}</span>)
+        </button>
+
+        <button class="chip warn" data-report="{{ n.id }}">⚠️ รายงาน</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}

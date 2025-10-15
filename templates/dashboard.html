@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}{% if library_mode %}คลังโน้ต{% else %}Dashboard{% endif %}{% endblock %}
+
+{% block content %}
+
+{% if not library_mode %}
+<div class="top-search">
+  <form class="top-search__form" method="get" action="{{ url_for('dashboard') }}">
+    <input type="text" name="q" placeholder="ค้นหาโน๊ต..." value="{{ q or '' }}">
+    <select name="category">
+      <option value="">ทุกสาขา</option>
+      {% for c in categories %}
+      <option value="{{ c }}" {% if cat==c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn blue" type="submit">ค้นหา</button>
+  </form>
+</div>
+{% endif %}
+
+<h2 class="page-title">{% if library_mode %}คลังโน้ตของฉัน{% else %}โน๊ตทั้งหมด{% endif %}</h2>
+
+<div class="note-grid">
+  {# ตอนนี้ notes เป็น "ลิสต์" ของโน้ตแล้ว ใช้ตัวแปร n เสมอ #}
+  {% for n in notes %}
+  <div class="note-card">
+    <a href="{{ url_for('note_detail', note_id=n.id) }}" class="note-link">
+      <div class="note-thumbnail">
+        <span class="file-icon">📄</span>
+        <p class="file-type">{{ n.filename.rsplit('.', 1)[1] | upper }}</p>
+      </div>
+      <div class="note-details">
+        <p class="note-title">{{ n.title or n.subject }}</p>
+        <p class="note-branch">{{ n.faculty }}</p>
+      </div>
+    </a>
+
+    <div class="card-actions">
+      <a class="chip ghost" href="{{ url_for('note_detail', note_id=n.id) }}">อ่าน</a>
+
+      <button
+        class="chip like"
+        data-like="{{ n.id }}"
+        data-liked="{{ '1' if (n.liked|default(false)) else '0' }}"
+      >
+        {% if n.liked|default(false) %}❤️{% else %}🤍{% endif %} ใจ
+        (<span class="like-count">{{ n.like_count }}</span>)
+      </button>
+
+      <button class="chip warn" data-report="{{ n.id }}">⚠️ รายงาน</button>
+
+      {% if n.uploader == session['student_id'] %}
+      <form action="{{ url_for('delete_note', note_id=n.id) }}" method="post" class="inline-delete-form">
+  <button type="submit" class="chip danger">✖ ลบ</button>
+</form>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+    <p class="empty-message">ยังไม่มีโน้ตในระบบ ลองคลิก "สร้างโน้ต" เพื่ออัปโหลดดูสิ!</p>
+  {% endfor %}
+</div>
+
+{% endblock %}
