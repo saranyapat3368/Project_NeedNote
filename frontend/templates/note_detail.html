@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+{% block title %}อ่านโน้ต{% endblock %}
+{% block content %}
+
+<div class="page-title" style="display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <h2 style="margin:0">{{ note.title or note.subject }}</h2>
+    <div style="color:#6c757d">{{ note.faculty }}</div>
+  </div>
+  <div>
+    <!-- ปุ่มดาวน์โหลด: ใช้ดาวน์โหลดผ่าน note_id -->
+    <a class="btn green" href="{{ url_for('download_note', note_id=note_id) }}">⬇️ ดาวน์โหลด</a>
+  </div>
+</div>
+
+{% set ext = note.filename.rsplit('.', 1)[1].lower() %}
+
+<div class="note-viewer panel" style="background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08);padding:10px;">
+  {# พรีวิว PDF #}
+  {% if ext in ['pdf'] %}
+    <iframe
+      src="{{ url_for('inline_file', note_id=note_id) }}#toolbar=1&navpanes=0&view=FitH"
+      title="preview"
+      style="width:100%;height:70vh;border:0;border-radius:10px"
+    ></iframe>
+
+  {# พรีวิวรูปภาพ #}
+  {% elif ext in ['png','jpg','jpeg'] %}
+    <img
+      src="{{ url_for('inline_file', note_id=note_id) }}"
+      alt="note image"
+      style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto;"
+    />
+
+  {# ชนิดอื่นไม่รองรับพรีวิว (เช่น doc/docx) #}
+  {% else %}
+    <div style="padding:1rem;color:#555;">
+      ไฟล์ชนิด <strong>.{{ ext }}</strong> ไม่รองรับการพรีวิวในเบราว์เซอร์<br>
+      กรุณากดปุ่ม <em>ดาวน์โหลด</em> ด้านขวาบนเพื่อเปิดอ่านบนเครื่องของคุณ
+    </div>
+  {% endif %}
+</div>
+
+<section class="comments" style="margin-top:18px">
+  <h3>คอมเมนต์</h3>
+  <form method="post" action="{{ url_for('add_comment', note_id=note_id) }}" class="comment-form" style="display:flex;gap:8px;">
+    <input type="text" name="text" placeholder="พิมพ์ความคิดเห็น..." required style="flex:1;padding:.8rem;border-radius:12px;border:1px solid #ced4da;">
+    <button class="btn blue" type="submit">ส่ง</button>
+  </form>
+
+  {% if comments|length == 0 %}
+    <div class="empty-message">ยังไม่มีคอมเมนต์</div>
+  {% else %}
+    <ul style="list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px">
+      {% for c in comments %}
+      <li style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:500">{{ c.text }}</div>
+          <div style="color:#888;font-size:.9rem">{{ c.user }} • {{ c.created_at[:19].replace('T',' ') }}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" data-report-comment="{{ c.id }}" data-note="{{ note_id }}" style="background:#fff;border:1px solid #ffe7b3;color:#333">รายงาน</button>
+          {% if c.user == session['student_id'] %}
+          <button class="btn" data-del-comment="{{ c.id }}" data-note="{{ note_id }}" style="background:#fff;border:1px solid #ffd6e5;color:#333">ลบของฉัน</button>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+
+{% endblock %}

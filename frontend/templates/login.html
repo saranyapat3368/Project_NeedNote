@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block title %}เข้าสู่ระบบ{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2>เข้าสู่ระบบ</h2>
+  <form method="POST" action="{{ url_for('login') }}">
+    <div class="input-group">
+      <label for="student_id">รหัสนักศึกษา</label>
+      <input type="text" id="student_id" name="student_id" required>
+    </div>
+    <div class="input-group">
+      <label for="password">รหัสผ่าน</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn green full-width">เข้าสู่ระบบ</button>
+  </form>
+  <div class="form-links">
+    <span>ยังไม่มีบัญชี?</span>
+    <a href="{{ url_for('register') }}">ลงทะเบียน</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}{% endblock %} | NEED NOTE</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+  <div class="left-icons">
+    <button type="button" class="btn back" onclick="history.back()">◀</button>
+    <a href="{{ url_for('home') }}" class="header-link">NEED NOTE</a>
+  </div>
+  <div class="header-right">
+    {% if 'student_id' in session %}
+      <a href="{{ url_for('library') }}" class="btn blue">📑 คลังโน้ต</a>
+      <a href="{{ url_for('create_note') }}" class="btn green">➕ สร้างโน้ต</a>
+      <span class="user-info">{{ session['fullname'] }}</span>
+      <a href="{{ url_for('logout') }}" class="btn red">ออกจากระบบ</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn green">เข้าสู่ระบบ</a>
+      <a href="{{ url_for('register') }}" class="btn blue">ลงทะเบียน</a>
+    {% endif %}
+  </div>
+</header>
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

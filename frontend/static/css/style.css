@@ -1,0 +1,184 @@
+/* === การตั้งค่าพื้นฐาน === */
+body {
+    margin: 0;
+    font-family: 'Kanit', sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+.container {
+    max-width: 1200px;
+    margin: 1rem auto;   /* ชิดแถบชมพูมากขึ้น */
+    padding: 0 1rem;
+}
+
+/* === ส่วน Header === */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFAEF0;
+    padding: 1.1rem 2rem;           /* สูงขึ้นกว่าของเดิมเล็กน้อย */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+.left-icons, .header-right { display: flex; align-items: center; gap: 1rem; }
+.header-link { text-decoration: none; color: #563D7C; font-weight: 500; font-size: 1.2rem; }
+.user-info { font-weight: 500; }
+
+/* ปุ่มย้อนกลับ */
+.btn.back {
+    background: #ffffff;
+    color: #563D7C;
+    border: 2px solid #f1d1ee;
+    border-radius: 10px;
+    padding: .45rem .7rem;
+    font-weight: 700;
+    margin-right: .6rem;
+    cursor: pointer;
+}
+
+/* ปุ่มมาตรฐาน */
+.btn {
+    padding: 0.55rem 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+.btn.green { background-color: #28a745; } .btn.green:hover { background-color: #218838; }
+.btn.red   { background-color: #dc3545; } .btn.red:hover   { background-color: #c82333; }
+.btn.blue  { background-color: #007bff; } .btn.blue:hover  { background-color: #0069d9; }
+
+/* === หน้า Form (Login, Register, Create Note) === */
+.form-container {
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.form-container h2 { text-align: center; margin-bottom: 1.5rem; }
+.input-group { margin-bottom: 1rem; }
+.input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+.input-group input, .input-group select {
+    width: 100%; padding: 0.8rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 1rem; box-sizing: border-box;
+}
+.btn.full-width { width: 100%; padding: 0.8rem; font-size: 1.1rem; }
+.form-buttons-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.form-links { margin-top: 1rem; text-align: center; }
+.form-links a { margin: 0 10px; color: #007bff; text-decoration: none; }
+.form-links a:hover { text-decoration: underline; }
+
+/* === แถบค้นหาแบบเต็มแนวกว้าง และชิดแถบชมพู === */
+.top-search{
+    width: 100%;
+    margin: 0 0 1rem 0;
+    display: flex;
+    justify-content: center;
+}
+.top-search__form{
+    width: 100%;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 260px 120px;  /* ช่องค้นหา / สาขา / ปุ่ม */
+    gap: 10px;
+}
+.top-search__form input,
+.top-search__form select{
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #ced4da;
+    padding: 0 12px;
+    font-size: 1rem;
+}
+
+/* === หน้า Dashboard === */
+.page-title { margin-bottom: 1.5rem; }
+.note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
+.note-card {
+    background-color: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.note-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.12); }
+.note-link { text-decoration: none; color: inherit; display: block; }
+.note-thumbnail { height: 150px; background-color: #e9ecef; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.file-icon { font-size: 4rem; color: #adb5bd; }
+.file-type { font-weight: bold; color: #6c757d; margin-top: 0.5rem; }
+.note-details { padding: 1rem; }
+.note-title { font-weight: 500; margin: 0 0 0.5rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-branch { font-size: 0.9rem; color: #6c757d; }
+.delete-form { position: absolute; top: 10px; right: 10px; }
+.btn-delete {
+    background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;
+    font-weight: bold; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease;
+    font-size: 1.2rem; line-height: 1;
+}
+.note-card:hover .btn-delete { opacity: 1; }
+.empty-message { grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6c757d; }
+
+/* === Flash Messages === */
+.flash-messages { margin-bottom: 1rem; }
+.alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #fff; }
+.alert-success { background-color: #28a745; }
+.alert-danger  { background-color: #dc3545; }
+.alert-info    { background-color: #17a2b8; }
+
+/* responsive (แถบค้นหา 2 แถวบนจอเล็ก) */
+@media (max-width: 768px){
+  .top-search__form{ grid-template-columns: 1fr 1fr; }
+  .top-search__form button{ grid-column: 1 / -1; }
+}
+/* ===== ปุ่มแบบชิปในการ์ด ===== */
+.card-actions{
+  display:flex;
+  flex-wrap:wrap;            /* ป้องกันตกขอบ */
+  gap:10px;
+  padding:.6rem .8rem 1rem;
+}
+.chip{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.5rem .9rem;
+  border-radius:999px;       /* เม็ดชิปโค้งมน */
+  font-weight:600; font-size:.95rem;
+  border:1px solid #e9e9e9;
+  background:#fff; color:#333;
+  cursor:pointer;
+  text-decoration:none;
+  line-height:1;
+  transition:transform .05s ease, box-shadow .15s ease;
+}
+.chip:hover{ box-shadow:0 2px 8px rgba(0,0,0,.08); transform:translateY(-1px); }
+.chip.ghost{ border-color:#eaeaea; }                 /* อ่าน */
+.chip.like{  border-color:#ffd6e5; }                  /* ใจ */
+.chip.warn{  border-color:#ffe7b3; }                  /* รายงาน */
+.chip.danger{ border-color:#ffb3b3; background:#ffecec; } /* ลบ */
+/* วางปุ่มลบไว้ในแถวเดียวกับชิป */
+.inline-delete-form{
+  position: static !important;
+  display: inline;
+  margin: 0;
+}
+/* เส้นแบ่งระหว่างสองเซคชันในหน้า /library */
+.section-divider{
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 2rem 0 1rem;
+}
+
+/* ข้อความตัวเล็กใต้หัวข้อเมื่อไม่มีเนื้อหา */
+.empty-subtext{
+  color:#8a8a8a;
+  font-size:.95rem;
+  margin: .3rem 0 1rem 0.2rem;
+}

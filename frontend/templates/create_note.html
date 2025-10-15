@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block title %}สร้างโน้ตใหม่{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2>อัปโหลดโน้ตใหม่</h2>
+  <form method="POST" action="{{ url_for('create_note') }}" enctype="multipart/form-data">
+    <div class="input-group">
+      <label>ชื่อเรื่อง</label>
+      <input name="title" required>
+    </div>
+    <div class="input-group">
+      <label>วิชา</label>
+      <input name="subject" required>
+    </div>
+    <div class="input-group">
+      <label>สาขา</label>
+      <select name="faculty" required>
+        <option value="" disabled selected>เลือกสาขา</option>
+        {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="input-group">
+      <label>ไฟล์โน้ต (PDF/รูป/Doc)</label>
+      <input type="file" name="note_file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required>
+    </div>
+    <button class="btn green full-width" type="submit">อัปโหลด</button>
+  </form>
+  <div class="form-links"><a href="{{ url_for('dashboard') }}">ยกเลิก</a></div>
+</div>
+{% endblock %}
