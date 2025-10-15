@@ -1,78 +1,54 @@
 import os
 import uuid
 import requests
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 
 # Firebase SDK
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 
 # --- 1. การตั้งค่าเบื้องต้น ---
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx'}
-
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-super-secret-key-for-sessions'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- 2. เชื่อม Firebase ---
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# 👉 Firebase Web API Key
+# Firebase Web API Key
 FIREBASE_API_KEY = "AIzaSyAm3ZezqVvpsk40Z_ggc1L_0dzkxE4Sm1Q"
 
-
-# --- 3. ฟังก์ชันช่วยเหลือ ---
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# --- 4. Routes ---
+# --- 3. Routes ---
 
 @app.route('/')
 def home():
-    """หน้าแรก: ถ้า login แล้วให้ไป Dashboard ถ้ายังให้ไป Login"""
     if 'student_id' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
-
-# 🔹 หน้า Login
+# 🔹 Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         login_id = request.form['login_id']
         password = request.form['password']
 
-        # ตรวจว่าเป็นอีเมลหรือรหัสนักศึกษา
         if '@' in login_id:
             email = login_id
         else:
             email = f"{login_id}@kmitl.ac.th"
 
-        payload = {
-            "email": email,
-            "password": password,
-            "returnSecureToken": True
-        }
+        payload = {"email": email,"password": password,"returnSecureToken": True}
 
-        # 🔍 ยิง API ไปที่ Firebase Authentication
         resp = requests.post(
             f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}",
             json=payload
         )
 
         if resp.status_code == 200:
-            # ✅ Login สำเร็จ (Firebase Auth)
             data = resp.json()
-            print("✅ Login success:", data)
-
-            # 🔍 ดึงข้อมูลผู้ใช้จาก Firestore
-            docs = db.collection('users').where('email', '==', email).stream()
+            docs = db.collection('users').where('email','==',email).stream()
             user_doc = None
             for d in docs:
                 user_doc = d.to_dict()
@@ -90,9 +66,8 @@ def login():
 
     return render_template('login.html')
 
-
-# 🔹 หน้า Register
-@app.route('/register', methods=['GET', 'POST'])
+# 🔹 Register
+@app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'POST':
         fullname = request.form['fullname']
@@ -105,18 +80,16 @@ def register():
             return redirect(url_for('register'))
 
         try:
-            # ตรวจสอบซ้ำ
             existing_student = db.collection('users').document(student_id).get()
             if existing_student.exists:
                 flash('รหัสนักศึกษานี้ถูกใช้แล้ว', 'warning')
                 return redirect(url_for('register'))
 
-            existing_email = db.collection('users').where('email', '==', email).stream()
+            existing_email = db.collection('users').where('email','==',email).stream()
             if any(existing_email):
                 flash('อีเมลนี้ถูกใช้งานแล้ว', 'warning')
                 return redirect(url_for('register'))
 
-            # สร้างผู้ใช้ใน Firebase Auth
             auth.create_user(
                 uid=student_id,
                 email=email,
@@ -124,7 +97,6 @@ def register():
                 display_name=fullname
             )
 
-            # เก็บข้อมูลใน Firestore
             db.collection('users').document(student_id).set({
                 'fullname': fullname,
                 'student_id': student_id,
@@ -140,8 +112,7 @@ def register():
 
     return render_template('register.html')
 
-
-# 🔹 หน้า Dashboard
+# 🔹 Dashboard (โน้ตตัวเอง)
 @app.route('/dashboard')
 def dashboard():
     if 'student_id' not in session:
@@ -149,17 +120,19 @@ def dashboard():
         return redirect(url_for('login'))
 
     fullname = session.get('fullname')
+    notes_ref = db.collection('notes').where('uploader','==', session['student_id']).stream()
+    notes = []
+    for doc in notes_ref:
+        n = doc.to_dict()
+        n['id'] = doc.id
+        n['like_count'] = n.get('like_count',0)
+        n['liked_by'] = n.get('liked_by',[])
+        notes.append(n)
 
-    # ดึงโน้ตทั้งหมดจาก Firestore
-    notes_ref = db.collection('notes').where('uploader', '==', session['student_id']).stream()
-    notes = [doc.to_dict() for doc in notes_ref]
-
-    categories = ["เทคโนโลยีคอมพิวเตอร์", "อิเล็กทรอนิกส์", "โทรคมนาคม"]
-
+    categories = ["เทคโนโลยีคอมพิวเตอร์","อิเล็กทรอนิกส์","โทรคมนาคม"]
     return render_template('dashboard.html', fullname=fullname, notes=notes, categories=categories, library_mode=False)
 
-
-# 🔹 หน้า Library (optional)
+# 🔹 Library (โชว์โน้ตตัวเอง)
 @app.route('/library')
 def library():
     if 'student_id' not in session:
@@ -167,50 +140,57 @@ def library():
         return redirect(url_for('login'))
 
     fullname = session.get('fullname')
-    return render_template('dashboard.html', fullname=fullname, notes=[], library_mode=True)
+    notes_ref = db.collection('notes').where('uploader','==', session['student_id']).stream()
+    notes = []
+    for doc in notes_ref:
+        n = doc.to_dict()
+        n['id'] = doc.id
+        n['like_count'] = n.get('like_count',0)
+        n['liked_by'] = n.get('liked_by',[])
+        notes.append(n)
 
+    categories = ["เทคโนโลยีคอมพิวเตอร์","อิเล็กทรอนิกส์","โทรคมนาคม"]
+    return render_template('dashboard.html', fullname=fullname, notes=notes, categories=categories, library_mode=True)
 
-# 🔹 หน้า Create Note
-@app.route('/create-note', methods=['GET', 'POST'])
+# 🔹 Create Note
+@app.route('/create-note', methods=['GET','POST'])
 def create_note():
     if 'student_id' not in session:
         flash('กรุณาเข้าสู่ระบบก่อน', 'danger')
         return redirect(url_for('login'))
 
-    categories = ["เทคโนโลยีคอมพิวเตอร์", "อิเล็กทรอนิกส์", "โทรคมนาคม"]
+    categories = ["เทคโนโลยีคอมพิวเตอร์","อิเล็กทรอนิกส์","โทรคมนาคม"]
 
     if request.method == 'GET':
         return render_template('create_note.html', categories=categories)
 
-    # POST: บันทึกไฟล์
-    file = request.files.get('note_file')
-    if not file or file.filename == '':
-        flash('กรุณาเลือกไฟล์ก่อนอัปโหลด', 'danger')
-        return redirect(request.url)
-
-    if allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
+    try:
         note_id = str(uuid.uuid4())
+        title = request.form.get('title','')
+        subject = request.form.get('subject','')
+        faculty = request.form.get('faculty','')
+        content = request.form.get('content','')
+
         db.collection('notes').document(note_id).set({
             'note_id': note_id,
-            'title': request.form['title'],
-            'subject': request.form['subject'],
-            'faculty': request.form['faculty'],
-            'filename': filename,
+            'title': title,
+            'subject': subject,
+            'faculty': faculty,
+            'content': content,
             'uploader': session['student_id'],
-            'fullname': session.get('fullname', '')
+            'fullname': session.get('fullname',''),
+            'like_count':0,
+            'liked_by':[],
         })
 
-        flash('✅ อัปโหลดโน้ตสำเร็จ!', 'success')
+        flash('✅ บันทึกโน้ตสำเร็จ!', 'success')
         return redirect(url_for('dashboard'))
-    else:
-        flash('ชนิดไฟล์ไม่ถูกต้อง', 'danger')
+
+    except Exception as e:
+        flash(f'เกิดข้อผิดพลาด: {e}', 'danger')
         return redirect(request.url)
 
-
-# 🔹 หน้าอ่านรายละเอียดโน้ต
+# 🔹 Note Detail + Comment + Like + Report
 @app.route('/note/<note_id>')
 def note_detail(note_id):
     note_ref = db.collection('notes').document(note_id).get()
@@ -218,27 +198,101 @@ def note_detail(note_id):
         flash('ไม่พบโน้ตที่ต้องการ', 'warning')
         return redirect(url_for('dashboard'))
     note = note_ref.to_dict()
-    return render_template('note_detail.html', note=note)
+    note['like_count'] = note.get('like_count',0)
+    note['liked_by'] = note.get('liked_by',[])
 
+    # ดึงคอมเมนต์
+    comments_ref = db.collection('comments').where('note_id','==',note_id).stream()
+    comments = []
+    for c in comments_ref:
+        com = c.to_dict()
+        comments.append(com)
 
-# 🔹 ลบโน้ต
+    return render_template('note_detail.html', note=note, comments=comments)
+
+# 🔹 Toggle Like
+@app.route('/toggle-like/<note_id>', methods=['POST'])
+def toggle_like(note_id):
+    if 'student_id' not in session:
+        return jsonify({"success":False, "msg":"ไม่พบผู้ใช้"})
+
+    note_ref = db.collection('notes').document(note_id)
+    note = note_ref.get().to_dict()
+    student_id = session['student_id']
+
+    liked_by = note.get('liked_by',[])
+    if student_id in liked_by:
+        liked_by.remove(student_id)
+    else:
+        liked_by.append(student_id)
+
+    note_ref.update({
+        'liked_by': liked_by,
+        'like_count': len(liked_by)
+    })
+
+    return jsonify({"success":True, "liked": student_id in liked_by, "like_count": len(liked_by)})
+
+# 🔹 Add Comment
+@app.route('/add-comment/<note_id>', methods=['POST'])
+def add_comment(note_id):
+    if 'student_id' not in session:
+        flash('กรุณาเข้าสู่ระบบ', 'danger')
+        return redirect(url_for('login'))
+
+    content = request.form.get('content','')
+    if not content.strip():
+        flash('กรุณากรอกข้อความ', 'warning')
+        return redirect(url_for('note_detail', note_id=note_id))
+
+    comment_id = str(uuid.uuid4())
+    db.collection('comments').document(comment_id).set({
+        'comment_id': comment_id,
+        'note_id': note_id,
+        'content': content,
+        'fullname': session.get('fullname',''),
+        'student_id': session['student_id'],
+        'timestamp': firestore.SERVER_TIMESTAMP
+    })
+
+    flash('เพิ่มคอมเมนต์เรียบร้อย', 'success')
+    return redirect(url_for('note_detail', note_id=note_id))
+
+# 🔹 Report Note
+@app.route('/report-note/<note_id>', methods=['POST'])
+def report_note(note_id):
+    reason = request.form.get('reason','')
+    if 'student_id' not in session:
+        flash('กรุณาเข้าสู่ระบบ', 'danger')
+        return redirect(url_for('login'))
+
+    report_id = str(uuid.uuid4())
+    db.collection('reports').document(report_id).set({
+        'report_id': report_id,
+        'note_id': note_id,
+        'reason': reason,
+        'reporter': session['student_id'],
+        'fullname': session.get('fullname',''),
+        'timestamp': firestore.SERVER_TIMESTAMP
+    })
+
+    flash('รายงานถูกส่งเรียบร้อยแล้ว', 'success')
+    return redirect(url_for('note_detail', note_id=note_id))
+
+# 🔹 Delete Note
 @app.route('/delete-note/<note_id>', methods=['POST'])
 def delete_note(note_id):
     db.collection('notes').document(note_id).delete()
     flash('ลบโน้ตเรียบร้อยแล้ว', 'info')
     return redirect(url_for('dashboard'))
 
-
-# 🔹 ออกจากระบบ
+# 🔹 Logout
 @app.route('/logout')
 def logout():
     session.clear()
     flash('ออกจากระบบเรียบร้อยแล้ว', 'info')
     return redirect(url_for('login'))
 
-
-# --- 5. Run App ---
+# --- 4. Run App ---
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
-

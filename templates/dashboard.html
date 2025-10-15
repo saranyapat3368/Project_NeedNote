@@ -6,7 +6,7 @@
 {% if not library_mode %}
 <div class="top-search">
   <form class="top-search__form" method="get" action="{{ url_for('dashboard') }}">
-    <input type="text" name="q" placeholder="ค้นหาโน๊ต..." value="{{ q or '' }}">
+    <input type="text" name="q" placeholder="ค้นหาโน้ต..." value="{{ q or '' }}">
     <select name="category">
       <option value="">ทุกสาขา</option>
       {% for c in categories %}
@@ -18,47 +18,67 @@
 </div>
 {% endif %}
 
-<h2 class="page-title">{% if library_mode %}คลังโน้ตของฉัน{% else %}โน๊ตทั้งหมด{% endif %}</h2>
+<h2 class="page-title">{% if library_mode %}คลังโน้ตของฉัน{% else %}โน้ตทั้งหมด{% endif %}</h2>
 
 <div class="note-grid">
-  {# ตอนนี้ notes เป็น "ลิสต์" ของโน้ตแล้ว ใช้ตัวแปร n เสมอ #}
   {% for n in notes %}
-  <div class="note-card">
-    <a href="{{ url_for('note_detail', note_id=n.id) }}" class="note-link">
-      <div class="note-thumbnail">
-        <span class="file-icon">📄</span>
-        <p class="file-type">{{ n.filename.rsplit('.', 1)[1] | upper }}</p>
-      </div>
+  <div class="note-card" id="note-{{ n.note_id }}">
+    <a href="{{ url_for('note_detail', note_id=n.note_id) }}" class="note-link">
+      <div class="note-thumbnail"><span class="file-icon">📝</span></div>
       <div class="note-details">
-        <p class="note-title">{{ n.title or n.subject }}</p>
-        <p class="note-branch">{{ n.faculty }}</p>
+        <p class="note-title">{{ n.title or 'ไม่มีชื่อเรื่อง' }}</p>
+        <p class="note-branch">{{ n.subject }} - {{ n.faculty }}</p>
+        <p class="note-author">โดย {{ n.fullname }}</p>
       </div>
     </a>
 
     <div class="card-actions">
-      <a class="chip ghost" href="{{ url_for('note_detail', note_id=n.id) }}">อ่าน</a>
+      <a class="chip ghost" href="{{ url_for('note_detail', note_id=n.note_id) }}">อ่าน</a>
 
+      <!-- ❤️ ปุ่มกดใจ -->
+      {% set like_count = n.like_count|default(0) %}
+      {% set liked_by = n.liked_by|default([]) %}
+      {% set is_liked = session['student_id'] in liked_by %}
       <button
-        class="chip like"
-        data-like="{{ n.id }}"
-        data-liked="{{ '1' if (n.liked|default(false)) else '0' }}"
+        class="chip like-btn"
+        data-note="{{ n.note_id }}"
+        data-liked="{{ '1' if is_liked else '0' }}"
       >
-        {% if n.liked|default(false) %}❤️{% else %}🤍{% endif %} ใจ
-        (<span class="like-count">{{ n.like_count }}</span>)
+        {% if is_liked %}❤️{% else %}🤍{% endif %}
+        ใจ (<span class="like-count">{{ like_count }}</span>)
       </button>
 
-      <button class="chip warn" data-report="{{ n.id }}">⚠️ รายงาน</button>
-
       {% if n.uploader == session['student_id'] %}
-      <form action="{{ url_for('delete_note', note_id=n.id) }}" method="post" class="inline-delete-form">
-  <button type="submit" class="chip danger">✖ ลบ</button>
-</form>
+      <form action="{{ url_for('delete_note', note_id=n.note_id) }}" method="post" class="inline-delete-form">
+        <button type="submit" class="chip danger">✖ ลบ</button>
+      </form>
       {% endif %}
     </div>
   </div>
   {% else %}
-    <p class="empty-message">ยังไม่มีโน้ตในระบบ ลองคลิก "สร้างโน้ต" เพื่ออัปโหลดดูสิ!</p>
+    <p class="empty-message">ยังไม่มีโน้ตในระบบ ลองคลิก "สร้างโน้ต" เพื่อเพิ่มดูสิ!</p>
   {% endfor %}
 </div>
+
+<!-- ✅ JavaScript สำหรับปุ่มกดใจ -->
+<script>
+document.querySelectorAll('.like-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const noteId = btn.dataset.note;
+    const isLiked = btn.dataset.liked === '1';
+
+    const res = await fetch(`/toggle-like/${noteId}`, { method: 'POST' });
+    if (!res.ok) return alert('เกิดข้อผิดพลาด');
+
+    const data = await res.json();
+    if (data.success) {
+      const likeCountSpan = btn.querySelector('.like-count');
+      likeCountSpan.textContent = data.like_count;
+      btn.dataset.liked = data.liked ? '1' : '0';
+      btn.innerHTML = `${data.liked ? '❤️' : '🤍'} ใจ (<span class="like-count">${data.like_count}</span>)`;
+    }
+  });
+});
+</script>
 
 {% endblock %}
