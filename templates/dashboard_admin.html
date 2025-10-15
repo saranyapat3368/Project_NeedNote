@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+
+<div class="content-header">
+    <h1>Admin Dashboard</h1>
+</div>
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <h2>{{ stats.total_notes }}</h2>
+        <p>Total Notes</p>
+    </div>
+    <div class="dashboard-card">
+        <h2>{{ stats.total_views }}</h2>
+        <p>Total Likes</p>
+    </div>
+    <div class="dashboard-card">
+        <h2>{{ stats.total_users }}</h2>
+        <p>Total Users</p>
+    </div>
+    <div class="dashboard-card">
+        <h2>{{ stats.logins_today }}</h2>
+        <p>Logins Today</p>
+    </div>
+
+    <div class="card large chart-container">
+        <h3>Logins in Last 7 Days</h3>
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+                datasets: [{
+                    label: '# of Logins', 
+                    data: [0,0,0,0,0,0,0], // dummy data
+                    backgroundColor: 'rgba(195, 161, 255, 0.6)',
+                    borderColor: 'rgba(195, 161, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }},
+                responsive: true, maintainAspectRatio: false
+            }
+        });
+    });
+</script>
+
+{% endblock %}
