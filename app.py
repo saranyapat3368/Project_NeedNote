@@ -19,15 +19,39 @@ db = firestore.client()
 # Firebase Web API Key
 FIREBASE_API_KEY = "AIzaSyAm3ZezqVvpsk40Z_ggc1L_0dzkxE4Sm1Q"
 
+# ---------- Helper ----------
+def compute_stats():
+    """ดึงตัวเลขสรุปจาก Firestore แบบง่ายและปลอดภัย"""
+    try:
+        total_users    = sum(1 for _ in db.collection('users').stream())
+        total_notes    = sum(1 for _ in db.collection('notes').stream())
+        total_reports  = sum(1 for _ in db.collection('reports').stream())
+        total_comments = sum(1 for _ in db.collection('comments').stream())
+        return {
+            'total_users': total_users,
+            'total_notes': total_notes,
+            'total_reports': total_reports,
+            'total_comments': total_comments
+        }
+    except Exception:
+        return {
+            'total_users': 0,
+            'total_notes': 0,
+            'total_reports': 0,
+            'total_comments': 0
+        }
+
 # --- 3. Routes ---
 
 @app.route('/')
 def home():
     if 'student_id' in session:
         return redirect(url_for('dashboard'))
+    elif session.get('admin'):
+        return redirect(url_for('dashboard_admin'))
     return redirect(url_for('login'))
 
-# 🔹 Login
+# 🔹 Login (User)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -39,7 +63,7 @@ def login():
         else:
             email = f"{login_id}@kmitl.ac.th"
 
-        payload = {"email": email,"password": password,"returnSecureToken": True}
+        payload = {"email": email, "password": password, "returnSecureToken": True}
 
         resp = requests.post(
             f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}",
@@ -47,8 +71,7 @@ def login():
         )
 
         if resp.status_code == 200:
-            data = resp.json()
-            docs = db.collection('users').where('email','==',email).stream()
+            docs = db.collection('users').where('email', '==', email).stream()
             user_doc = None
             for d in docs:
                 user_doc = d.to_dict()
@@ -67,7 +90,7 @@ def login():
     return render_template('login.html')
 
 # 🔹 Register
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         fullname = request.form['fullname']
@@ -85,7 +108,7 @@ def register():
                 flash('รหัสนักศึกษานี้ถูกใช้แล้ว', 'warning')
                 return redirect(url_for('register'))
 
-            existing_email = db.collection('users').where('email','==',email).stream()
+            existing_email = db.collection('users').where('email', '==', email).stream()
             if any(existing_email):
                 flash('อีเมลนี้ถูกใช้งานแล้ว', 'warning')
                 return redirect(url_for('register'))
@@ -112,7 +135,7 @@ def register():
 
     return render_template('register.html')
 
-# 🔹 Dashboard (โชว์โน้ตของทุกคน + ระบบค้นหา / หมวดหมู่)
+# 🔹 Dashboard (โชว์โน้ตของทุกคน)
 @app.route('/dashboard')
 def dashboard():
     if 'student_id' not in session:
@@ -120,8 +143,6 @@ def dashboard():
         return redirect(url_for('login'))
 
     fullname = session.get('fullname')
-
-    # 🟩 รับค่าจากฟอร์ม (ชื่อที่ตั้งไว้ใน dashboard.html)
     search_query = request.args.get('q', '').strip().lower()
     selected_category = request.args.get('category', '').strip()
 
@@ -138,34 +159,29 @@ def dashboard():
         n['like_count'] = n.get('like_count', 0)
         n['liked_by'] = n.get('liked_by', [])
 
-        # 🟨 กรองข้อมูลตามคำค้นหา และหมวดหมู่
         match_text = (
             search_query in n['title'].lower() or
             search_query in n['subject'].lower() or
             search_query in n['fullname'].lower()
         ) if search_query else True
 
-        match_category = (
-            selected_category == '' or selected_category == n['faculty']
-        )
+        match_category = (selected_category == '' or selected_category == n['faculty'])
 
         if match_text and match_category:
             notes.append(n)
 
     categories = ["เทคโนโลยีคอมพิวเตอร์", "อิเล็กทรอนิกส์", "โทรคมนาคม"]
 
-    return render_template(
-        'dashboard.html',
-        fullname=fullname,
-        notes=notes,
-        categories=categories,
-        library_mode=False,
-        favorite_mode=False,
-        q=search_query,
-        cat=selected_category
-    )
+    return render_template('dashboard.html',
+                           fullname=fullname,
+                           notes=notes,
+                           categories=categories,
+                           library_mode=False,
+                           favorite_mode=False,
+                           q=search_query,
+                           cat=selected_category)
 
-# 🔹 Library (โชว์โน้ตของผู้ใช้เอง)
+# 🔹 Library (โน้ตของตนเอง)
 @app.route('/library')
 def library():
     if 'student_id' not in session:
@@ -173,20 +189,17 @@ def library():
         return redirect(url_for('login'))
 
     fullname = session.get('fullname')
-    
-    notes_ref = db.collection('notes').where('uploader','==', session['student_id']).stream()
-    notes = []
-    for doc in notes_ref:
-        n = doc.to_dict()
-        n['id'] = doc.id
-        n['like_count'] = n.get('like_count',0)
-        n['liked_by'] = n.get('liked_by',[])
-        notes.append(n)
+    notes_ref = db.collection('notes').where('uploader', '==', session['student_id']).stream()
+    notes = [n.to_dict() for n in notes_ref]
 
-    categories = ["เทคโนโลยีคอมพิวเตอร์","อิเล็กทรอนิกส์","โทรคมนาคม"]
-    return render_template('dashboard.html', fullname=fullname, notes=notes, categories=categories, library_mode=True)
+    categories = ["เทคโนโลยีคอมพิวเตอร์", "อิเล็กทรอนิกส์", "โทรคมนาคม"]
+    return render_template('dashboard.html',
+                           fullname=fullname,
+                           notes=notes,
+                           categories=categories,
+                           library_mode=True)
 
-# 🔹 หน้าโน้ตที่ถูกใจ ❤️
+# 🔹 Favorite Notes
 @app.route('/favorites')
 def favorites():
     if 'student_id' not in session:
@@ -196,23 +209,9 @@ def favorites():
     student_id = session['student_id']
     fullname = session.get('fullname')
 
-    # ดึงเฉพาะโน้ตที่ user เคยกดหัวใจไว้
     notes_ref = db.collection('notes').where('liked_by', 'array_contains', student_id).stream()
+    notes = [doc.to_dict() for doc in notes_ref]
 
-    notes = []
-    for doc in notes_ref:
-        n = doc.to_dict()
-        n['note_id'] = doc.id
-        n['title'] = n.get('title', '')
-        n['subject'] = n.get('subject', '')
-        n['faculty'] = n.get('faculty', '')
-        n['fullname'] = n.get('fullname', '')
-        n['like_count'] = n.get('like_count', 0)
-        n['liked_by'] = n.get('liked_by', [])
-        n['uploader'] = n.get('uploader', '')
-        notes.append(n)
-
-    # ใช้ template เดิม dashboard.html ได้เลย
     return render_template('dashboard.html',
                            fullname=fullname,
                            notes=notes,
@@ -221,23 +220,23 @@ def favorites():
                            favorite_mode=True)
 
 # 🔹 Create Note
-@app.route('/create-note', methods=['GET','POST'])
+@app.route('/create-note', methods=['GET', 'POST'])
 def create_note():
     if 'student_id' not in session:
         flash('กรุณาเข้าสู่ระบบก่อน', 'danger')
         return redirect(url_for('login'))
 
-    categories = ["เทคโนโลยีคอมพิวเตอร์","อิเล็กทรอนิกส์","โทรคมนาคม"]
+    categories = ["เทคโนโลยีคอมพิวเตอร์", "อิเล็กทรอนิกส์", "โทรคมนาคม"]
 
     if request.method == 'GET':
         return render_template('create_note.html', categories=categories)
 
     try:
         note_id = str(uuid.uuid4())
-        title = request.form.get('title','')
-        subject = request.form.get('subject','')
-        faculty = request.form.get('faculty','')
-        content = request.form.get('content','')
+        title = request.form.get('title', '')
+        subject = request.form.get('subject', '')
+        faculty = request.form.get('faculty', '')
+        content = request.form.get('content', '')
 
         db.collection('notes').document(note_id).set({
             'note_id': note_id,
@@ -246,9 +245,9 @@ def create_note():
             'faculty': faculty,
             'content': content,
             'uploader': session['student_id'],
-            'fullname': session.get('fullname',''),
-            'like_count':0,
-            'liked_by':[],
+            'fullname': session.get('fullname', ''),
+            'like_count': 0,
+            'liked_by': [],
         })
 
         flash('✅ บันทึกโน้ตสำเร็จ!', 'success')
@@ -258,37 +257,31 @@ def create_note():
         flash(f'เกิดข้อผิดพลาด: {e}', 'danger')
         return redirect(request.url)
 
-# 🔹 Note Detail + Comment + Like + Report
+# 🔹 Note Detail
 @app.route('/note/<note_id>')
 def note_detail(note_id):
     note_ref = db.collection('notes').document(note_id).get()
     if not note_ref.exists:
         flash('ไม่พบโน้ตที่ต้องการ', 'warning')
         return redirect(url_for('dashboard'))
-    note = note_ref.to_dict()
-    note['like_count'] = note.get('like_count',0)
-    note['liked_by'] = note.get('liked_by',[])
 
-    # ดึงคอมเมนต์
-    comments_ref = db.collection('comments').where('note_id','==',note_id).stream()
-    comments = []
-    for c in comments_ref:
-        com = c.to_dict()
-        comments.append(com)
+    note = note_ref.to_dict()
+    comments_ref = db.collection('comments').where('note_id', '==', note_id).stream()
+    comments = [c.to_dict() for c in comments_ref]
 
     return render_template('note_detail.html', note=note, comments=comments)
 
-# 🔹 Toggle Like
+# 🔹 Like / Unlike
 @app.route('/toggle-like/<note_id>', methods=['POST'])
 def toggle_like(note_id):
     if 'student_id' not in session:
-        return jsonify({"success":False, "msg":"ไม่พบผู้ใช้"})
+        return jsonify({"success": False, "msg": "ไม่พบผู้ใช้"})
 
     note_ref = db.collection('notes').document(note_id)
     note = note_ref.get().to_dict()
     student_id = session['student_id']
 
-    liked_by = note.get('liked_by',[])
+    liked_by = note.get('liked_by', [])
     if student_id in liked_by:
         liked_by.remove(student_id)
     else:
@@ -299,17 +292,17 @@ def toggle_like(note_id):
         'like_count': len(liked_by)
     })
 
-    return jsonify({"success":True, "liked": student_id in liked_by, "like_count": len(liked_by)})
+    return jsonify({"success": True, "liked": student_id in liked_by, "like_count": len(liked_by)})
 
-# 🔹 Add Comment
+# 🔹 Comment
 @app.route('/add-comment/<note_id>', methods=['POST'])
 def add_comment(note_id):
     if 'student_id' not in session:
         flash('กรุณาเข้าสู่ระบบ', 'danger')
         return redirect(url_for('login'))
 
-    content = request.form.get('content','')
-    if not content.strip():
+    content = request.form.get('content', '').strip()
+    if not content:
         flash('กรุณากรอกข้อความ', 'warning')
         return redirect(url_for('note_detail', note_id=note_id))
 
@@ -318,7 +311,7 @@ def add_comment(note_id):
         'comment_id': comment_id,
         'note_id': note_id,
         'content': content,
-        'fullname': session.get('fullname',''),
+        'fullname': session.get('fullname', ''),
         'student_id': session['student_id'],
         'timestamp': firestore.SERVER_TIMESTAMP
     })
@@ -329,7 +322,7 @@ def add_comment(note_id):
 # 🔹 Report Note
 @app.route('/report-note/<note_id>', methods=['POST'])
 def report_note(note_id):
-    reason = request.form.get('reason','')
+    reason = request.form.get('reason', '')
     if 'student_id' not in session:
         flash('กรุณาเข้าสู่ระบบ', 'danger')
         return redirect(url_for('login'))
@@ -340,7 +333,7 @@ def report_note(note_id):
         'note_id': note_id,
         'reason': reason,
         'reporter': session['student_id'],
-        'fullname': session.get('fullname',''),
+        'fullname': session.get('fullname', ''),
         'timestamp': firestore.SERVER_TIMESTAMP
     })
 
@@ -354,12 +347,52 @@ def delete_note(note_id):
     flash('ลบโน้ตเรียบร้อยแล้ว', 'info')
     return redirect(url_for('dashboard'))
 
-# 🔹 Logout
+# 🔹 Logout (User)
 @app.route('/logout')
 def logout():
     session.clear()
     flash('ออกจากระบบเรียบร้อยแล้ว', 'info')
     return redirect(url_for('login'))
+
+# 🔹 หน้า Login สำหรับแอดมิน
+@app.route('/login_admin', methods=['GET', 'POST'])
+def login_admin():
+    ADMIN_EMAIL = "admin@neednote.com"
+    ADMIN_PASSWORD = "123456"
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session['admin'] = True
+            flash('เข้าสู่ระบบผู้ดูแลระบบสำเร็จ!', 'success')
+            return redirect(url_for('dashboard_admin'))  # ✅ เด้งแน่นอน
+        else:
+            flash('อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'danger')
+
+    return render_template('login_admin.html')
+
+# 🔹 Dashboard Admin
+@app.route('/dashboard_admin')
+def dashboard_admin():
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+
+    try:
+        stats = compute_stats()
+        return render_template('dashboard_admin.html', stats=stats)
+    except Exception as e:
+        flash(f'เกิดข้อผิดพลาดในการดึงข้อมูล: {e}', 'danger')
+        return redirect(url_for('login_admin'))
+
+# 🔹 Logout Admin
+@app.route('/logout_admin')
+def logout_admin():
+    session.pop('admin', None)
+    flash('ออกจากระบบผู้ดูแลแล้ว', 'info')
+    return redirect(url_for('login_admin'))
 
 # --- 4. Run App ---
 if __name__ == '__main__':

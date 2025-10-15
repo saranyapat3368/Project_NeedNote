@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block title %}เข้าสู่ระบบผู้ดูแลระบบ{% endblock %}
+{% block content %}
+
+<div class="admin-login-page">
+  <div class="admin-login-container">
+    <h2>🔐 เข้าสู่ระบบผู้ดูแลระบบ</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-message">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login_admin') }}">
+      <div class="form-group">
+        <label for="email">ชื่อผู้ใช้หรืออีเมล</label>
+        <input type="email" id="email" name="email" placeholder="admin@neednote.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="admin-btn">เข้าสู่ระบบ</button>
+    </form>
+
+    <a href="{{ url_for('login') }}" class="back-user">← กลับไปหน้า Login ผู้ใช้</a>
+  </div>
+</div>
+
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #e0f7fa 0%, #e3f2fd 100%);
+  min-height: 100vh;
+}
+.admin-login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.admin-login-container {
+  background-color: #fff;
+  padding: 40px 50px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  width: 380px;
+  text-align: center;
+}
+h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+.form-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+.form-group input:focus {
+  border-color: #4CAF50;
+}
+.admin-btn {
+  width: 100%;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.admin-btn:hover {
+  background: #43a047;
+}
+.flash-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+}
+.back-user {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+}
+.back-user:hover {
+  color: #43a047;
+}
+</style>
+
+{% endblock %}
