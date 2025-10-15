@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ note.title }}</h2>
+<p>{{ note.content }}</p>
+<p>โดย {{ note.fullname }} | วิชา: {{ note.subject }} | สาขา: {{ note.faculty }}</p>
+<hr>
+
+<!-- Like Button -->
+{% set is_liked = session['student_id'] in note.liked_by %}
+<button id="like-btn">{{ '❤️' if is_liked else '🤍' }} ใจ (<span id="like-count">{{ note.like_count }}</span>)</button>
+<script>
+document.getElementById('like-btn').addEventListener('click', async () => {
+    const res = await fetch(`/toggle-like/{{ note.note_id }}`, {method:'POST'});
+    const data = await res.json();
+    if (data.success){
+        document.getElementById('like-count').textContent = data.like_count;
+        document.getElementById('like-btn').innerHTML = (data.liked ? '❤️' : '🤍') + ` ใจ (<span id="like-count">${data.like_count}</span>)`;
+    }
+});
+</script>
+<hr>
+
+<!-- Report -->
+<button onclick="document.getElementById('report-form').style.display='block'">รายงาน</button>
+<div id="report-form" style="display:none; margin-top:10px;">
+  <form action="{{ url_for('report_note', note_id=note.note_id) }}" method="post">
+    <textarea name="reason" rows="3" placeholder="ระบุเหตุผล..." required></textarea>
+    <button type="submit">ส่งรายงาน</button>
+  </form>
+</div>
+<hr>
+
+<!-- Comments -->
+<h3>คอมเมนต์</h3>
+<form action="{{ url_for('add_comment', note_id=note.note_id) }}" method="post">
+  <textarea name="content" rows="3" placeholder="เพิ่มคอมเมนต์..." required></textarea>
+  <button type="submit">โพสต์คอมเมนต์</button>
+</form>
+
+<div class="comments-list" style="margin-top:15px;">
+{% for c in comments %}
+  <div class="comment" style="border-bottom:1px solid #ccc; padding:5px 0;">
+    <strong>{{ c.fullname }}</strong> <small>{{ c.timestamp }}</small>
+    <p>{{ c.content }}</p>
+  </div>
+{% else %}
+  <p>ยังไม่มีคอมเมนต์</p>
+{% endfor %}
+</div>
+{% endblock %}
