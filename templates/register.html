@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}ลงทะเบียนผู้ใช้ใหม่{% endblock %}
+
+{% block content %}
+<div class="login-body"> 
+    <div class="login-container">
+        <form class="login-form" method="POST" action="{{ url_for('register') }}">
+            
+            <h2>ลงทะเบียนผู้ใช้ใหม่</h2>
+           
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="flash-error">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+           
+            <div class="form-group">
+                <label for="full_name">ชื่อ-นามสกุล</label>
+                <input type="text" id="full_name" name="full_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">อีเมล</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">ตั้งรหัสผ่าน</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-button">ลงทะเบียน</button>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

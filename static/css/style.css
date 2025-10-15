@@ -1,0 +1,104 @@
+/* static/css/style.css */
+
+/* --- เพิ่มการประกาศตัวแปรสีเพื่อให้โค้ดทำงานถูกต้อง --- */
+:root {
+    --form-purple: #C3A1FF; /* สีม่วงใหม่สำหรับพื้นหลังฟอร์ม */
+    --button-green: #4CAF50; /* สีเขียวสำหรับปุ่ม */
+    --button-green-hover: #45a049; /* สีเขียวเข้มขึ้นเมื่อ hover */
+    --link-color: #f0efff; /* สีสำหรับลิงก์ (เป็นสีอ่อนเพื่อให้เห็นบนพื้นหลังม่วง) */
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    margin: 0;
+    background-color: #f4f7f6; /* สีพื้นหลังเว็บ */
+}
+
+/* --- โค้ดสำหรับหน้า Login --- */
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container { 
+    padding: 2rem; 
+}
+
+.login-form {
+    background-color: var(--form-purple); /* ใช้สีม่วงใหม่ */
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    color: white;
+    min-width: 350px;
+}
+
+.login-form h2 { 
+    color: white; 
+    margin-bottom: 2rem; 
+}
+
+.form-group { 
+    margin-bottom: 1.5rem; 
+    text-align: left; 
+}
+
+.form-group label { 
+    display: block; 
+    margin-bottom: 0.5rem; 
+}
+
+.form-group input { 
+    width: 100%; 
+    padding: 0.8rem; 
+    box-sizing: border-box; 
+    border: none; 
+    border-radius: 5px; 
+    color: #333; /* ทำให้ข้อความที่พิมพ์เป็นสีดำอ่านง่ายขึ้น */
+}
+
+.login-button {
+    background-color: var(--button-green); /* ใช้สีเขียวใหม่สำหรับปุ่ม */
+    color: white;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+    font-family: 'Kanit', sans-serif;
+    transition: background-color 0.2s;
+}
+
+.login-button:hover {
+    background-color: var(--button-green-hover); /* สีเขียวเข้มขึ้นเมื่อ hover */
+}
+
+.flash-error {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+/* --- สไตล์สำหรับลิงก์ลงทะเบียน --- */
+.register-link {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: white; /* ข้อความ "ยังไม่มีบัญชี?" เป็นสีขาว */
+}
+
+.register-link a {
+    color: var(--link-color); /* สีลิงก์ */
+    text-decoration: underline; /* ขีดเส้นใต้ลิงก์ */
+    transition: color 0.2s;
+}
+
+.register-link a:hover {
+    color: #ffffff; /* สีขาวเมื่อ hover */
+}

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="login-body"> 
+    <div class="login-container">
+        <form class="login-form" method="POST" action="{{ url_for('login') }}">
+            
+            <h2>เข้าสู่ระบบ</h2>
+           
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="flash-error">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+           
+            <div class="form-group">
+                <label for="email">อีเมล</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-button">เข้าสู่ระบบ</button>
+
+            <div class="register-link">
+                ยังไม่มีบัญชี? <a href="{{ url_for('register') }}">ลงทะเบียนสำหรับผู้ใช้ใหม่</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
