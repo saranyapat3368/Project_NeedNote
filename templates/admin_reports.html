@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block title %}รายงานที่ส่งเข้ามา{% endblock %}
+{% block content %}
+<h1>🚫 รายงานที่ผู้ใช้ส่งเข้ามา</h1>
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <tr>
+    <th>โน้ตที่ถูกรายงาน</th>
+    <th>เหตุผล</th>
+    <th>ชื่อผู้รายงาน</th>
+    <th>รหัสนักศึกษา</th>
+  </tr>
+  {% for r in reports %}
+  <tr>
+    <td>
+      <!-- ✅ เพิ่มลิงก์เข้าไปดูโน้ตได้ -->
+      <a href="{{ url_for('note_detail', note_id=r.note_id) }}" class="note-link">
+        {{ r.note_id }}
+      </a>
+    </td>
+    <td>{{ r.reason }}</td>
+    <td>{{ r.fullname }}</td>
+    <td>{{ r.reporter }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<a href="{{ url_for('dashboard_admin') }}" class="back-btn">← กลับแดชบอร์ด</a>
+{% endblock %}
+
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+  margin: 0;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+}
+table {
+  width: 90%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+th {
+  background: #4CAF50;
+  color: white;
+  text-align: center;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+tr:hover {
+  background: #f1f8f6;
+}
+.note-link {
+  color: #2196F3;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+.note-link:hover {
+  color: #0b7dda;
+  text-decoration: underline;
+}
+.back-btn {
+  display: block;
+  margin: 20px auto;
+  width: fit-content;
+  background: #2196F3;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+.back-btn:hover {
+  background: #0b7dda;
+}
+</style>

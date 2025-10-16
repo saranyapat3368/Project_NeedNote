@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+{% block title %}คอมเมนต์ทั้งหมด{% endblock %}
+{% block content %}
+
+<div class="admin-comments">
+  <h1>💬 คอมเมนต์ทั้งหมดในระบบ</h1>
+
+  <!-- 🔍 ช่องค้นหา -->
+  <input type="text" id="searchInput" placeholder="ค้นหาชื่อผู้ใช้ / ข้อความ / ชื่อโน้ต..." class="search-box">
+
+  <div class="table-container">
+    <table id="commentTable">
+      <thead>
+        <tr>
+          <th>ชื่อผู้แสดงความคิดเห็น</th>
+          <th>ข้อความ</th>
+          <th>รหัสนักศึกษา</th>
+          <th>โน้ตที่เกี่ยวข้อง</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in comments %}
+        <tr>
+          <td>{{ c.fullname }}</td>
+          <td>{{ c.content }}</td>
+          <td>{{ c.student_id }}</td>
+          <td>
+            {% if c.note_title %}
+              <div class="note-cell">
+                <span class="note-title">{{ c.note_title }}</span>
+                <!-- ✅ เปิดในแท็บเดิม -->
+                <a href="{{ url_for('note_detail', note_id=c.note_id) }}" class="view-btn">
+                  🔗 ดูโน้ต
+                </a>
+              </div>
+            {% else %}
+              <span class="no-note">ไม่พบโน้ต</span>
+            {% endif %}
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('admin_delete_comment', comment_id=c.comment_id) }}" 
+                  onsubmit="return confirm('ต้องการลบคอมเมนต์นี้หรือไม่?');">
+              <button type="submit" class="delete-btn">🗑 ลบ</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <a href="{{ url_for('dashboard_admin') }}" class="back-btn">← กลับแดชบอร์ด</a>
+</div>
+
+<!-- 🔎 ระบบค้นหา -->
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#commentTable tbody tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(filter) ? '' : 'none';
+  });
+});
+</script>
+
+<!-- 🎨 CSS ตกแต่ง -->
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+  margin: 0;
+  padding: 0;
+}
+.admin-comments {
+  text-align: center;
+  padding: 30px;
+}
+h1 {
+  color: #333;
+  margin-bottom: 25px;
+}
+.search-box {
+  width: 50%;
+  max-width: 450px;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+.search-box:focus {
+  border-color: #43A047;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+.table-container {
+  width: 90%;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+th {
+  background: #4CAF50;
+  color: white;
+  text-align: center;
+  font-size: 16px;
+}
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  vertical-align: middle;
+}
+tr:hover {
+  background: #f9f9f9;
+}
+.note-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.note-title {
+  color: #333;
+  font-weight: 500;
+}
+.view-btn {
+  background: #03a9f4;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.3s;
+  display: inline-block;
+}
+.view-btn:hover {
+  background: #0288d1;
+}
+.delete-btn {
+  background: #ff5c5c;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.delete-btn:hover {
+  background: #e53935;
+}
+.back-btn {
+  display: inline-block;
+  margin-top: 25px;
+  background: #2196F3;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+.back-btn:hover {
+  background: #0b7dda;
+}
+.no-note {
+  color: #999;
+  font-style: italic;
+}
+</style>
+{% endblock %}

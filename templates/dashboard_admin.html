@@ -7,10 +7,25 @@
 
   {% if stats %}
   <div class="stats-grid">
-    <div class="card"><h2>👥 {{ stats.total_users }}</h2><p>ผู้ใช้ทั้งหมด</p></div>
-    <div class="card"><h2>📝 {{ stats.total_notes }}</h2><p>โน้ตทั้งหมด</p></div>
-    <div class="card"><h2>💬 {{ stats.total_comments }}</h2><p>คอมเมนต์ทั้งหมด</p></div>
-    <div class="card"><h2>🚫 {{ stats.total_reports }}</h2><p>รายงานที่ส่งเข้ามา</p></div>
+    <a href="{{ url_for('admin_users') }}" class="card link-card">
+      <h2>👥 {{ stats.total_users }}</h2>
+      <p>ผู้ใช้ทั้งหมด</p>
+    </a>
+
+    <a href="{{ url_for('admin_notes') }}" class="card link-card">
+      <h2>📝 {{ stats.total_notes }}</h2>
+      <p>โน้ตทั้งหมด</p>
+    </a>
+
+    <a href="{{ url_for('admin_comments') }}" class="card link-card">
+      <h2>💬 {{ stats.total_comments }}</h2>
+      <p>คอมเมนต์ทั้งหมด</p>
+    </a>
+
+    <a href="{{ url_for('admin_reports') }}" class="card link-card">
+      <h2>🚫 {{ stats.total_reports }}</h2>
+      <p>รายงานที่ส่งเข้ามา</p>
+    </a>
   </div>
   {% else %}
   <p>ไม่พบข้อมูลสถิติ</p>
@@ -68,8 +83,8 @@ h1 {
 }
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
   justify-content: center;
   margin-bottom: 30px;
 }
@@ -79,9 +94,11 @@ h1 {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   padding: 25px 15px;
   transition: 0.3s;
+  text-decoration: none;
 }
 .card:hover {
   transform: translateY(-5px);
+  background: #f4fff6;
 }
 .card h2 {
   color: #4CAF50;
@@ -109,6 +126,10 @@ h1 {
 canvas {
   max-width: 600px;
   margin: 0 auto;
+}
+.link-card {
+  display: block;
+  cursor: pointer;
 }
 </style>
 

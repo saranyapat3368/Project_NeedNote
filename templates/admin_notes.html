@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}โน้ตทั้งหมด{% endblock %}
+{% block content %}
+<h1>📝 โน้ตทั้งหมดในระบบ</h1>
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <tr>
+    <th>ชื่อเรื่อง</th>
+    <th>วิชา</th>
+    <th>คณะ/สาขา</th>
+    <th>ผู้เขียน</th>
+  </tr>
+  {% for n in notes %}
+  <tr>
+    <td>{{ n.title }}</td>
+    <td>{{ n.subject }}</td>
+    <td>{{ n.faculty }}</td>
+    <td>{{ n.fullname }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<a href="{{ url_for('dashboard_admin') }}">← กลับแดชบอร์ด</a>
+{% endblock %}
+
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+  margin: 0;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+}
+table {
+  width: 90%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+th {
+  background: #4CAF50;
+  color: white;
+  text-align: center;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+tr:hover {
+  background: #f1f8f6;
+}
+a {
+  display: block;
+  margin: 20px auto;
+  width: fit-content;
+  background: #2196F3;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+a:hover {
+  background: #0b7dda;
+}
+</style>

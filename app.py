@@ -394,6 +394,73 @@ def logout_admin():
     flash('ออกจากระบบผู้ดูแลแล้ว', 'info')
     return redirect(url_for('login_admin'))
 
+# 🔹 ดูรายละเอียดแต่ละหมวดในแดชบอร์ดแอดมิน
+@app.route('/admin/users')
+def admin_users():
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+    users = [u.to_dict() for u in db.collection('users').stream()]
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin/notes')
+def admin_notes():
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+    notes = [n.to_dict() for n in db.collection('notes').stream()]
+    return render_template('admin_notes.html', notes=notes)
+
+    return render_template('admin_comments.html', comments=comments)
+@app.route('/admin/reports')
+def admin_reports():
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+    reports = [r.to_dict() for r in db.collection('reports').stream()]
+    return render_template('admin_reports.html', reports=reports)
+
+# 🔹 ฟังก์ชันแสดงคอมเมนต์ (แก้ใหม่ให้ดึงชื่อเรื่องโน้ต)
+@app.route('/admin/comments')
+def admin_comments():
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+
+    comments = []
+    for c in db.collection('comments').stream():
+        comment = c.to_dict()
+        note_ref = db.collection('notes').document(comment['note_id']).get()
+
+        if note_ref.exists:
+            note_data = note_ref.to_dict()
+            comment['note_title'] = note_data.get('title', 'ไม่พบชื่อเรื่อง')
+        else:
+            comment['note_title'] = 'ไม่พบโน้ต'
+
+        comment['comment_id'] = c.id
+        comments.append(comment)
+
+    # ✅ ต้องมี return แบบนี้
+    return render_template('admin_comments.html', comments=comments)
+
+
+# 🔹 ลบคอมเมนต์
+@app.route('/admin/delete_comment/<comment_id>', methods=['POST'])
+def admin_delete_comment(comment_id):
+    if not session.get('admin'):
+        flash('กรุณาเข้าสู่ระบบก่อน', 'warning')
+        return redirect(url_for('login_admin'))
+
+    try:
+        db.collection('comments').document(comment_id).delete()
+        flash('ลบคอมเมนต์เรียบร้อยแล้ว', 'success')
+    except Exception as e:
+        flash(f'เกิดข้อผิดพลาดในการลบ: {e}', 'danger')
+
+    return redirect(url_for('admin_comments'))
+
+
 # --- 4. Run App ---
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
